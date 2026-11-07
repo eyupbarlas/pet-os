@@ -26,3 +26,4 @@ or off-topic requests directly and runs the full team only when the work warrant
 | Date | Change | Target | Reason |
 |------|--------|--------|--------|
 | 2026-11-07 | Initial setup: 6 agents, 7 skills, spec process, Context7 | All | Start architecture work for iOS + Android |
+| 2026-11-07 | MVP stage (≤100 users), EU as preference not filter, i18n via en_US.json / pl_PL.json | `pet-os-context`, architects, reviewers, tools | Eyup: build an MVP to play with; translations in-house |

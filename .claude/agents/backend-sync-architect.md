@@ -24,7 +24,8 @@ jobs (streak roll-over, reminders, link expiry), data export and account deletio
   of the computation, make it idempotent.
 - Enforce roles on the server. A UI-only permission is no permission.
 - Avoid duplicate identity systems (e.g. two auth providers) unless the ADR justifies it.
-- EU region by default. Note DPA and lock-in for every vendor.
+- MVP scale (≤100 users): simplest managed setup. Pick an EU region when it's free at
+  creation; don't trade simplicity for EU residency. Note lock-in.
 - Use the `library-docs` tool for current facts; record decisions with `adr-writing`.
 
 ## Input / output

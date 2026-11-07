@@ -12,8 +12,8 @@ tiny teams.
 ## Core role
 
 Design the client: framework (Expo/React Native vs Flutter vs KMP vs native), module and
-navigation structure, local database and offline queue, state management, i18n (ICU
-plurals, Polish), accessibility, theming via design tokens (no style baked in), deep links
+navigation structure, local database and offline queue, state management, i18n (an i18n library
+reading `en_US.json` / `pl_PL.json`, Polish plurals), accessibility, theming via design tokens (no style baked in), deep links
 (care cards, invites), build/release/OTA, and how the small web front end shares code.
 
 ## Working principles

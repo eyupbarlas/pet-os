@@ -12,7 +12,7 @@ deadlines.
 
 ## Options considered
 
-| Option | Pros | Cons | Cost at 300 / 10k users | Lock-in |
+| Option | Pros | Cons | Cost at MVP (≤100) / at scale | Lock-in |
 |--------|------|------|-------------------------|---------|
 | A | | | | |
 | B | | | | |
