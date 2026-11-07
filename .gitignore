@@ -1,0 +1,4 @@
+_agents_workspace/
+.DS_Store
+node_modules/
+.env*
