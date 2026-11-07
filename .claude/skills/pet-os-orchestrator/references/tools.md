@@ -14,5 +14,6 @@ preferred tool is unavailable, fall back to the alternative.
 ## Deferred candidates (not adopted — revisit when the stack is chosen)
 
 Expo MCP, Dart/Flutter plugin, Firebase MCP, PowerSync docs MCP, mobile-mcp (needs a local
-Mac), Sentry MCP, PostHog MCP, Crowdin/Lokalise, Google Maps MCP, RevenueCat. Mermaid Chart
-was declined (GitHub renders Mermaid natively).
+Mac), Sentry MCP, PostHog MCP, Google Maps MCP, RevenueCat. Mermaid Chart
+was declined (GitHub renders Mermaid natively). Translation services (Crowdin/Lokalise)
+are not needed: translations are in-house in JSON files.

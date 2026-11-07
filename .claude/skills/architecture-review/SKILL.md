@@ -19,13 +19,14 @@ stores. So read producer and consumer **side by side**, never one in isolation.
 | Auth design | Sync engine, RLS, web care card | the token the sync engine accepts is the one auth issues; sitter/limited roles enforced server-side, not only in UI |
 | Care-card links | Privacy design | unguessable, revocable, expiring, noindex; shows only the fields the spec allows |
 | Analytics/consent | Every SDK | nothing initialises before consent; consent stored and synced; withdrawal works |
-| i18n | Data model, push, email | locale stored per user; server-sent text (push, email) localised; plural rules |
+| i18n | Data model, push, email | locale stored per user; all UI text in `en_US.json` / `pl_PL.json` (no hard-coded strings); server-sent text (push, email) localised; plural rules |
 | Account deletion | All stores | deletes or anonymises in DB, storage (photos), analytics, error tracker, email provider, push tokens |
 
 ## Also check
 
 - Every requirement in the approved spec maps to at least one design element (list gaps).
 - Each decision has an ADR with options, cost and lock-in.
+- Proportionate to the MVP (≤100 users): flag over-engineering as firmly as gaps.
 - Nothing contradicts `pet-os-context` (won't-do list, gates, team size). Flag complexity a
   1–3 person team can't carry.
 - No visual-style coupling.

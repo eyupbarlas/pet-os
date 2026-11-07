@@ -14,8 +14,8 @@ a future teammate (or a future Claude session) will rely on these instead of ask
    `docs/adr/NNNN-short-title.md`.
 2. **Context** — the forces, citing the spec needs (e.g. "spec 001 need 3") and
    `pet-os-context` constraints. Keep it to what actually drives the choice.
-3. **Options** — at least two real options. For each: pros, cons, cost at ~300 and ~10k
-   users, EU data residency / DPA status, and lock-in (how hard to leave). Use the
+3. **Options** — at least two real options. For each: pros, cons, cost for the MVP (≤100
+   users) and what changes at scale, EU region availability (nice to have, not a filter), and lock-in (how hard to leave). Use the
    `library-docs` tool from the orchestrator's tools registry for current facts; never
    rely on memory for prices or versions — cite the source and date.
 4. **Decision** — status `proposed`. Only Eyup moves it to `accepted`.

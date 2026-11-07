@@ -15,7 +15,7 @@ Design: notifications (local scheduled reminders vs server push, max 1 nudge/day
 hours, localisation), analytics with consent gating, error tracking, transactional email,
 feature flags/remote config, Google Places nearest-vet flow, partner link-outs and
 affiliate tracking, the web front end hosting (care cards, deletion page), DNS, monitoring,
-and a monthly cost estimate at ~300 and ~10k users.
+and a monthly cost estimate for the MVP (≤100 users), with a note on what changes at scale.
 
 ## Working principles
 
@@ -23,7 +23,8 @@ and a monthly cost estimate at ~300 and ~10k users.
 - Nothing that reads device data initialises before consent.
 - Reminders must work offline and in the user's local time (local notifications first,
   server push for cross-device events like "Partner fed Luna").
-- EU data regions, DPAs; flag every US transfer.
+- MVP scale (≤100 users): free tiers and fewest vendors. EU region when it's a free
+  checkbox; park DPA/transfer paperwork under "before public launch".
 - Payments: no payments for services (won't-do). Digital subscriptions on mobile must
   respect App Store / Play billing rules — check before proposing a web payment provider.
 - Use the `library-docs` tool for current facts; record decisions with `adr-writing`.

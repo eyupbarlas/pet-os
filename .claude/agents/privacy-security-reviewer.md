@@ -23,7 +23,9 @@ tools registry, with a built-in fallback.
   off until consent; share links are unguessable, revocable, expiring and noindex.
 - Deletion means everywhere: database, photo storage, analytics, error tracker, email
   provider, push tokens, backups policy.
-- Severity matters: separate "blocks beta" from "fix before public launch".
+- Severity matters, and we are at MVP stage (≤100 users): only real risks to the people
+  using it block the MVP. Everything else (DPAs, transfer assessments, DPIA, EU residency)
+  goes under "before public launch", not as a blocker.
 - Not legal advice. Flag what needs a lawyer (DPIA sign-off, privacy policy, terms, coins,
   insurance referral).
 

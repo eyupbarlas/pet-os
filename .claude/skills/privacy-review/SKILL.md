@@ -16,6 +16,13 @@ legal plugin's skills — `legal:compliance-check` for a feature or initiative,
 relevant one via the Skill tool with a concrete description of the processing. If the plugin
 is unavailable, apply the fallback below, which distils the same framework.
 
+## Stage matters
+
+Pet OS is an MVP for ≤100 users. Rank findings as **blocks MVP** (real harm to
+the people using it: leaked data, no way to delete, tracking without consent, guessable
+links) or **before public launch** (DPAs, transfer assessments, DPIA, EU residency, store
+labels, EAA, AI Act). Don't let launch paperwork block building.
+
 ## Fallback framework
 
 1. **Map the data:** what personal data, whose (owner, partner, sitter, public viewer),

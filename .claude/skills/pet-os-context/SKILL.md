@@ -24,15 +24,31 @@ Build around the **pet** (profile, routine, health, caregivers), not around serv
 Food and grooming plug in through partners. The pet profile and the shareable care card
 become the trust layer for a later vetted walker/sitter marketplace (Option B).
 
+## Current stage: MVP (set by Eyup, 2026-11-07)
+
+We are building an MVP to build and play with, **max ~100 users**. Size every decision to
+that:
+- Pick the simplest, cheapest option that works now; note what would change at scale, but
+  don't build for it.
+- **EU is a preference, not a filter.** Choose an EU region when it's free and easy (e.g. at
+  project creation). Don't reject a good tool, add cost or add complexity only for EU data
+  residency, DPAs or transfer paperwork — list those under "before public launch".
+- Privacy basics still apply because real people use it: analytics off until consent, a way
+  to delete an account, no secrets in the app, share links that can't be guessed.
+- Localization: an i18n library with all UI text in one editable JSON file per language —
+  `en_US.json` and `pl_PL.json`. Translations are done in-house; no translation-management
+  service.
+
 ## Hard constraints
 
 - 1–3 builders. Prefer managed services and boring tech; every extra moving part is a cost.
 - iOS + Android from one cross-platform codebase, plus a small web front end (public care
   cards, account-deletion page required by Google Play).
-- Polish + English from day one. Test long Polish words and Polish plural forms.
+- Polish + English from day one, via `en_US.json` / `pl_PL.json`. Test long Polish words
+  and Polish plural forms.
 - Auth: Apple, Google, email. Sign in with Apple is mandatory on iOS if Google is offered.
-- GDPR/EU: analytics, session replay and marketing are **off by default** and consent-gated.
-  Account deletion in 3 taps plus a web page. Data export.
+- Privacy: analytics, session replay and marketing are **off by default** and consent-gated.
+  Account deletion in 3 taps plus a web page. Data export can wait until after the MVP.
 - Warsaw first, Poland only for now.
 - Fun UX is a requirement, but plain copy: no guilt, no first-person pet voice.
 
