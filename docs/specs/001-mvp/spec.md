@@ -1,9 +1,9 @@
 # 001 — Pet OS MVP: shared daily care for dogs and cats
 
-- **Status:** review
+- **Status:** approved
 - **Issue:** #3
 - **Owner:** Product Owner (agent)
-- **Last updated:** 2026-11-07
+- **Last updated:** 2026-11-22
 - **Roadmap phase:** Next (MVP)
 
 > **Scope note vs. roadmap:** the roadmap puts the emergency vet finder and Info library v1 in
@@ -41,7 +41,8 @@ shops. This MVP exists to let ~100 real owners play with the loop and tell us if
    pause or remove. Tasks can be timed or "any time today", daily or every N days.
 5. **Ticks with attribution.** Anyone in the household can tick a task done (and undo it);
    everyone sees who did it and when ("Done by Partner"). Ticks work offline and sync later.
-6. **Streak.** A day counts when every meal and med is ticked (cat: meals + fresh water).
+6. **Streak.** A day counts when every streak-critical task is ticked: dog = meals + meds + walks;
+   cat = meals + meds + fresh water.
    Two automatic skip days ("paw passes") a month, user-marked rest days, milestones at
    7/14/30/100 days, celebrated playfully; no guilt copy, no first-person pet voice. "Day" is
    the household's local calendar day; household ticks count toward one shared streak per pet.
@@ -70,7 +71,8 @@ Acceptance (must pass before the beta):
       reconnect, both ticks show with the right names and the streak is correct.
 - [ ] Both offline tick the *same* task; after sync it shows once, credited to one person,
       and no one sees an error.
-- [ ] A day with all meals + meds ticked counts; a missed day uses a paw pass automatically
+- [ ] A day with all streak-critical tasks ticked (dog: meals, meds, walks; cat: meals, meds,
+      fresh water) counts; a missed day uses a paw pass automatically
       (max 2/month); the third miss resets the streak with neutral copy.
 - [ ] The day boundary follows the household's local time, including the DST change weekend.
 - [ ] A sitter opens the care card on a phone browser with no account and sees today's
@@ -90,7 +92,7 @@ Acceptance (must pass before the beta):
 
 What we want to learn (closed beta, ~100 users, consented stats only):
 - **G1 — is care-tracking a real pain?** Share of households that invite a partner within 7
-  days (target to set; *we think* ≥40%); ticks per active pet per day; % of ticks by
+  days (target: ≥40%); ticks per active pet per day; % of ticks by
   non-creators.
 - **G3 inputs — does the loop stick?** D30 retention (gate: ≥25%); % of active pets hitting a
   7-day streak (gate: ≥30%); paw-pass use; reminder opt-in and opt-out rates.
@@ -126,17 +128,19 @@ What we want to learn (closed beta, ~100 users, consented stats only):
 
 ## Open questions
 
-1. Do you agree to move the emergency vet finder and Info library out of the first MVP (to a
-   follow-up release in Next)?
-2. Should sitters be able to tick tasks on the care card (their ticks count toward the
-   streak per the canvas rule), or is read-only enough for the beta?
-3. Should the care card link expire on its own (e.g. after 14 days) or only when turned off?
-4. Do you accept "no pet photos" in the MVP, or is a single profile photo a must for the fun?
-5. Can more than two adults share a household (family of four), or cap it at owner + partner?
-6. Are walks streak-critical for dogs, or only meals + meds as the canvas rule says?
-7. Should the beta be invite-only (codes/TestFlight list) or open to anyone who finds it?
-8. What target do you want for "partner invited within 7 days", so G1 has a pass/fail line?
+None open. Answered by Eyup on 2026-11-22 (see Decisions).
 
 ## Decisions
 
-None yet — ADRs from this spec go in `docs/adr/`.
+Product decisions (Eyup, 2026-11-22):
+
+1. Emergency vet finder and Info library are **out** of the first MVP (follow-up release in Next).
+2. The care card is **read-only**; sitters do not tick tasks.
+3. Care card links **don't expire** on their own; they work until the owner turns them off.
+4. **No pet photos** in the MVP; pets show a name initial or species icon.
+5. A household can have **more than two adults**, all with equal rights, soft limit of 6.
+6. A dog's streak **includes walks** (meals + meds + walks). This changes the canvas rule.
+7. The beta is **invite-only** (TestFlight + Play closed testing).
+8. G1 target: **≥40%** of households invite a partner within 7 days.
+
+Technical decisions go in `docs/adr/` (architecture work: issue #5).
