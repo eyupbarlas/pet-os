@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024" role="img" aria-label="HealthyPaws"><title>HealthyPaws</title><rect width="1024" height="1024" rx="230" fill="#1E1B3A"/><g transform=""><g fill="#FF8A4C"><ellipse cx="300" cy="420" rx="72" ry="92" transform="rotate(-22 300 420)"/>
+<ellipse cx="430" cy="300" rx="76" ry="98" transform="rotate(-8 430 300)"/>
+<ellipse cx="594" cy="300" rx="76" ry="98" transform="rotate(8 594 300)"/>
+<ellipse cx="724" cy="420" rx="72" ry="92" transform="rotate(22 724 420)"/>
+<path d="M512 470c-120 0-250 130-250 240 0 70 50 110 120 110 50 0 85-25 130-25s80 25 130 25c70 0 120-40 120-110 0-110-130-240-250-240z"/></g><path d="M418 668l66 62 128-136" fill="none" stroke="#1E1B3A" stroke-width="44" stroke-linecap="round" stroke-linejoin="round"/></g></svg>
