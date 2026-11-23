@@ -1,6 +1,6 @@
 # 0010 — Supabase Pro in Frankfurt as the backend
 
-- **Status:** proposed
+- **Status:** accepted (Eyup, 2026-11-23)
 - **Date:** 2026-11-22
 - **Deciders:** Eyup
 - **Related:** spec `docs/specs/001-mvp/spec.md`, issue #5, design `docs/architecture/mvp/backend-sync.md` §2

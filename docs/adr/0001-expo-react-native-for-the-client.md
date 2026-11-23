@@ -1,6 +1,6 @@
 # 0001 — Expo (React Native) for the iOS and Android client
 
-- **Status:** proposed
+- **Status:** accepted (Eyup, 2026-11-23)
 - **Date:** 2026-11-22 (reviewed in phase 3; no change)
 - **Deciders:** Eyup
 - **Related:** spec `docs/specs/001-mvp/spec.md`, issue #5 (spec issue #3), research `docs/research/stack-choice.md`, draft `docs/architecture/mvp/mobile.md` §1

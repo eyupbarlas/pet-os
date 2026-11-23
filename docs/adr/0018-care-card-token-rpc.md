@@ -1,6 +1,6 @@
 # 0018 — One-pet care card behind a token-gated SECURITY DEFINER RPC, token stored in plaintext
 
-- **Status:** proposed
+- **Status:** accepted (Eyup, 2026-11-23)
 - **Date:** 2026-11-22
 - **Deciders:** Eyup
 - **Related:** spec `docs/specs/001-mvp/spec.md` (need 8; acceptance "no longer available"), platform B4, orchestrator rulings 3–5, privacy review R1/R2/B1, issue #5

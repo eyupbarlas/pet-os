@@ -1,6 +1,6 @@
 # 0011 — Supabase Auth, not Clerk
 
-- **Status:** proposed
+- **Status:** accepted (Eyup, 2026-11-23)
 - **Date:** 2026-11-22
 - **Deciders:** Eyup
 - **Related:** spec `docs/specs/001-mvp/spec.md` (needs 1, 11), issue #5, ADR 0010, ADR 0017

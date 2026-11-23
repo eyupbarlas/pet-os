@@ -1,6 +1,6 @@
 # 0020 — Reminders and streak nudges are local notifications planned on the device
 
-- **Status:** proposed
+- **Status:** accepted (Eyup, 2026-11-23)
 - **Date:** 2026-11-22 (revised after reviews 03 and rulings 04)
 - **Deciders:** Eyup
 - **Related:** spec `docs/specs/001-mvp/spec.md` (needs 5, 6, 7, 12), issue #5, design `docs/architecture/mvp/platform-services.md` §3

@@ -1,6 +1,6 @@
 # 0017 — No anonymous auth: server data exists only after sign-in
 
-- **Status:** proposed
+- **Status:** accepted (Eyup, 2026-11-23)
 - **Date:** 2026-11-22
 - **Deciders:** Eyup
 - **Related:** spec `docs/specs/001-mvp/spec.md` (need 1; acceptance "nothing entered is lost"), ADR 0011, mobile ADR 0005 (device draft, then write at sign-in), design §7

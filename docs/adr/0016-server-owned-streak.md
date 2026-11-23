@@ -1,6 +1,6 @@
 # 0016 — Streak computed in SQL on the server, provisional on the phone
 
-- **Status:** proposed
+- **Status:** accepted (Eyup, 2026-11-23)
 - **Date:** 2026-11-22
 - **Deciders:** Eyup
 - **Related:** spec `docs/specs/001-mvp/spec.md` (need 6; acceptance on paw passes, DST), ADR 0014, ADR 0015, design §5

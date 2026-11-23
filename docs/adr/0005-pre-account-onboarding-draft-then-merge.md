@@ -1,6 +1,6 @@
 # 0005 — Pre-account onboarding: device draft, written to synced tables at sign-in; separate join path for invitees
 
-- **Status:** proposed
+- **Status:** accepted (Eyup, 2026-11-23)
 - **Date:** 2026-11-22 (revised after phase-3 reviews); amended 2026-11-23 (owner role)
 - **Deciders:** Eyup
 - **Related:** spec `docs/specs/001-mvp/spec.md` need 1 and acceptance "A new user adds a dog, sees its default routine, then signs up; nothing entered is lost"; need 2 (invite); `pet-os-context` "Onboarding is pet first, account second"; backend ADR 0017 (no anonymous auth); `docs/architecture/mvp/reviews/rulings.md` rulings 11, 12; issue #5; draft §4

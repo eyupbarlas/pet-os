@@ -1,6 +1,6 @@
 # 0013 — PowerSync Cloud (EU region, free plan) over self-hosting
 
-- **Status:** proposed
+- **Status:** accepted (Eyup, 2026-11-23)
 - **Date:** 2026-11-22
 - **Deciders:** Eyup
 - **Related:** ADR 0012, issue #5

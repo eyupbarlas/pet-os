@@ -1,6 +1,6 @@
 # 0012 — PowerSync as the offline sync engine
 
-- **Status:** proposed
+- **Status:** accepted (Eyup, 2026-11-23)
 - **Date:** 2026-11-22
 - **Deciders:** Eyup
 - **Related:** spec `docs/specs/001-mvp/spec.md` (need 5; acceptance "both offline"), issue #5, ADR 0013, ADR 0014

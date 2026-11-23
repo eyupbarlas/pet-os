@@ -1,6 +1,6 @@
 # 0014 — Ticks are one row per task per household day; undo is DELETE
 
-- **Status:** proposed
+- **Status:** accepted (Eyup, 2026-11-23)
 - **Date:** 2026-11-22 (amended 2026-11-23: credit goes to whoever tapped first)
 - **Deciders:** Eyup
 - **Related:** spec `docs/specs/001-mvp/spec.md` (need 5, acceptance lines 2–3), mobile ADR 0004, ADR 0012, ADR 0016, orchestrator ruling 1, design §4

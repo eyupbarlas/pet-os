@@ -1,6 +1,6 @@
 # 0008 — One shared TS domain package; web pages render in a small Worker, not Expo Router web
 
-- **Status:** proposed
+- **Status:** accepted (Eyup, 2026-11-23)
 - **Date:** 2026-11-22 (revised after phase-3 reviews)
 - **Deciders:** Eyup
 - **Related:** spec `docs/specs/001-mvp/spec.md` needs 6, 8, 11 and the care-card / deletion acceptance tests; issue #5; platform ADR 0024 (Worker hosting); backend ADRs 0014–0016, 0018; `docs/architecture/mvp/reviews/rulings.md` rulings 3, 4, 5, 7; draft §2.1, C-B6, C-P9

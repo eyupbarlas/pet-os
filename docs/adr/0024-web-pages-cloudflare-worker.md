@@ -1,6 +1,6 @@
 # 0024 — Web pages as a plain Cloudflare Worker reading via narrow anon RPCs
 
-- **Status:** proposed
+- **Status:** accepted (Eyup, 2026-11-23)
 - **Date:** 2026-11-22 (revised after reviews 03 and rulings 04)
 - **Deciders:** Eyup
 - **Related:** spec `docs/specs/001-mvp/spec.md` (needs 2, 8, 11, 12; care-card and deletion acceptance), issue #5, ADR 0018 (care-card token), ADR 0008 (mobile: shared TS packages), design §8–9

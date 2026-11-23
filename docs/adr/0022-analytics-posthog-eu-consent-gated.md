@@ -1,6 +1,6 @@
 # 0022 — PostHog EU for consented product events; gate metrics from SQL aggregates
 
-- **Status:** proposed
+- **Status:** accepted (Eyup, 2026-11-23)
 - **Date:** 2026-11-22 (revised after reviews 03 and rulings 04)
 - **Deciders:** Eyup
 - **Related:** spec `docs/specs/001-mvp/spec.md` (need 11; acceptance "No analytics or session data leave the device before opt-in"; G1/G2/G3 metrics), issue #5, design §4–5

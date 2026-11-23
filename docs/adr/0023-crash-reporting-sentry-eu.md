@@ -1,6 +1,6 @@
 # 0023 — Sentry EU for crash and error reporting, consent-gated, without user identity
 
-- **Status:** proposed
+- **Status:** accepted (Eyup, 2026-11-23)
 - **Date:** 2026-11-22 (revised after reviews 03 and rulings 04)
 - **Deciders:** Eyup
 - **Related:** spec `docs/specs/001-mvp/spec.md` (need 11, acceptance on opt-in), issue #5, ADR 0022, design §4, §6

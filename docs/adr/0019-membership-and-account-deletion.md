@@ -1,6 +1,6 @@
 # 0019 — One owner plus members; preview-and-confirm join; removal by left_at; deletion keeps household data unless last member
 
-- **Status:** proposed
+- **Status:** accepted (Eyup, 2026-11-23)
 - **Date:** 2026-11-22 (amended 2026-11-23: owner role)
 - **Deciders:** Eyup
 - **Related:** spec `docs/specs/001-mvp/spec.md` (needs 2, 11; acceptance on removal and deletion), confirmed answer 5, ADR 0014, orchestrator rulings 7 and 11, privacy review B2/B4/B5, PO review B-M2/M-4

@@ -1,6 +1,6 @@
 # 0006 — i18next + react-i18next with `en_US.json` / `pl_PL.json`
 
-- **Status:** proposed
+- **Status:** accepted (Eyup, 2026-11-23)
 - **Date:** 2026-11-22 (revised after phase-3 reviews)
 - **Deciders:** Eyup
 - **Related:** spec `docs/specs/001-mvp/spec.md` needs 11, 12 and the language acceptance test (no English leftovers, 1 dzień / 2 dni / 5 dni, "5,8" accepted); `pet-os-context` localization rule; issue #5; draft §6

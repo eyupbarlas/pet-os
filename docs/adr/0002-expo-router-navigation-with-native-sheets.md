@@ -1,6 +1,6 @@
 # 0002 — Expo Router for navigation, native sheets for modals
 
-- **Status:** proposed
+- **Status:** accepted (Eyup, 2026-11-23)
 - **Date:** 2026-11-22 (revised after phase-3 reviews); amended 2026-11-23 (owner role)
 - **Deciders:** Eyup
 - **Related:** spec `docs/specs/001-mvp/spec.md` (needs 3, 11; accessibility acceptance), issue #5, draft `docs/architecture/mvp/mobile.md` §2.3, §10

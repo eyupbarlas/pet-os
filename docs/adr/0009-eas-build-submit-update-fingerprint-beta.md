@@ -1,6 +1,6 @@
 # 0009 — EAS Build, Submit and Update with fingerprint runtime versions for the invite-only beta
 
-- **Status:** proposed
+- **Status:** accepted (Eyup, 2026-11-23)
 - **Date:** 2026-11-22 (revised after phase-3 reviews)
 - **Deciders:** Eyup
 - **Related:** spec `docs/specs/001-mvp/spec.md` (confirmed answer 7: invite-only beta via TestFlight + Play closed testing); research `docs/research/stack-choice.md` (EAS pricing); platform-services draft §10 (environments); issue #5; draft §11

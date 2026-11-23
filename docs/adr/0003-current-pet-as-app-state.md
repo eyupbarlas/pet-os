@@ -1,6 +1,6 @@
 # 0003 — Current pet is app state, not a route segment
 
-- **Status:** proposed
+- **Status:** accepted (Eyup, 2026-11-23)
 - **Date:** 2026-11-22 (revised after phase-3 reviews)
 - **Deciders:** Eyup
 - **Related:** spec `docs/specs/001-mvp/spec.md` need 3 ("switch pets from anywhere and stay on the same place"), canvas rule "Pet switcher: same control on every screen … keeps you on the current screen", issue #5, draft §2.4

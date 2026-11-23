@@ -1,6 +1,6 @@
 # 0026 — No feature-flag vendor in the MVP; an `app_config` RPC is the kill switch
 
-- **Status:** proposed
+- **Status:** accepted (Eyup, 2026-11-23)
 - **Date:** 2026-11-22 (revised after reviews 03 and rulings 04)
 - **Deciders:** Eyup
 - **Related:** spec `docs/specs/001-mvp/spec.md`, issue #5, ADRs 0021 and 0022, design §10
