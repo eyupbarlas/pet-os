@@ -1,7 +1,7 @@
 # 0004 — PowerSync's local SQLite is the client's source of truth; deterministic ids for one-per-key rows
 
 - **Status:** proposed
-- **Date:** 2026-11-22 (revised after phase-3 reviews)
+- **Date:** 2026-11-22 (revised after phase-3 reviews); amended 2026-11-23 (owner role)
 - **Deciders:** Eyup
 - **Related:** spec `docs/specs/001-mvp/spec.md` needs 2, 5, 6 and both offline acceptance tests; issue #5; backend ADR 0012 (upload path and error classes), backend ADR 0014 (tick model, rewritten per orchestrator ruling 1); `docs/architecture/mvp/reviews/rulings.md` rulings 1, 13, 14; draft `docs/architecture/mvp/mobile.md` §3, §5
 
@@ -23,7 +23,7 @@ Ticks and edits must work offline and sync later (need 5). Two members ticking o
 **Option A** (orchestrator ruling 1 for the tick model).
 - Domain data is read only through typed query hooks over PowerSync SQLite and written only through `data/mutations` (one write transaction each).
 - Ids: UUIDv7 for ordinary rows. Deterministic UUIDv5 from `@petos/domain/ids` for `tick` (`task_id|local_date|slot`), `rest_day` (`pet_id|local_date`), `pet_place` (`pet_id|kind`), `reminder_pref` (`user_id|task_id`); `vet_contact.id = household_id`; `notification_settings.id = user_id`. The local tick write checks for an existing row first.
-- Upload: a per-table map mirroring backend ADR 0012 (insert vs upsert vs ignore-duplicates; PATCH sends changed columns only; care cards, invites and membership changes go through online RPCs, except the household bootstrap member row).
+- Upload: a per-table map mirroring backend ADR 0012 (insert vs upsert vs ignore-duplicates; PATCH sends changed columns only; care cards, invites and membership changes, including `leave_household`, `transfer_ownership` and `delete_household`, go through online RPCs, except the household bootstrap member row; `household` name/time-zone PATCHes are owner-only since 2026-11-23 and a member's stale PATCH is discarded with `42501`).
 - Errors: discard only on SQLSTATE `22xxx`, `23xxx`, `42501` and `P0001` (the single list lives in ADR 0012) (reported, dev banner); retry on 401 after a token refresh, 408, 429, 5xx and network errors.
 - Zustand holds small UI state; AsyncStorage holds device-only and per-user keys.
 

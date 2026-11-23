@@ -4,7 +4,7 @@
 - **Spec:** [`docs/specs/001-mvp/spec.md`](../../specs/001-mvp/spec.md) (approved 2026-11-22)
 - **Issue:** #5 (spec issue #3)
 - **Research:** [`docs/research/stack-choice.md`](../../research/stack-choice.md)
-- **Last updated:** 2026-11-22
+- **Last updated:** 2026-11-23 (owner role added)
 
 ## Summary
 
@@ -53,6 +53,11 @@ All 26 ADRs are in [`docs/adr/`](../../adr/), with status `proposed`.
 
   A server job closes each day and uses up to 2 paw passes a month. A rest day keeps the streak
   alive but adds no day, and can only be set for today. (ADR 0016)
+- **Owner and members** (Eyup, 2026-11-23): each household has exactly one owner
+  (`household.owner_id`). Only the owner invites, removes members, renames, sets the time zone,
+  transfers ownership and deletes the household. Every member edits pets, routines, ticks, health
+  records and care cards. If the owner leaves or deletes their account, ownership passes to the
+  member who joined earliest. (ADR 0019)
 - **Onboarding:** the pet and its routine are kept on the phone until sign-in, so there is no
   anonymous sign-in. Ticking needs an account. Invited partners skip the pet screens, and joining
   shows a preview with an explicit confirmation. (ADR 0005, 0017, 0019)
@@ -89,7 +94,8 @@ The main shared pieces:
 
 - **Table and field names:** backend's are canonical, for example `actor_id`, `client_at` and
   singular table names.
-- **Online-only calls:** `create_invite`, `preview_invite`, `accept_invite`, `remove_member`,
+- **Online-only calls:** `create_invite`, `preview_invite`, `accept_invite`, `remove_member`, `leave_household`,
+  `transfer_ownership`, `delete_household`,
   `create_care_card_link(p_pet_id, p_lang)`, `rotate_`/`revoke_care_card_link`, `get_app_config`,
   and the `delete-account` Edge Function.
 - **Anonymous allow-list:** exactly four functions, checked in CI: `get_care_card`,
@@ -120,6 +126,7 @@ These follow the recommended option for now, and each can be reversed cheaply:
    landing page, which has step-by-step TestFlight and Play instructions, and by recruiting
    households as pairs.
 4. **Pets brought in by a member stay with the household** if that member is later removed.
+   This fits the owner model: pets belong to the household.
 5. **Spec wording:** add one line to the spec saying the beta's gate metrics come from database
    totals that need no consent, while PostHog product events need opt-in. The privacy review
    cleared this.

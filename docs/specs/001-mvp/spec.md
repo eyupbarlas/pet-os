@@ -21,7 +21,7 @@ shops. This MVP exists to let ~100 real owners play with the loop and tell us if
 
 ## Who has it
 
-- **Owner** (creates the household) and **partner/family member** (invited, equal rights),
+- **Owner** (creates the household) and **partner/family member** (invited by the owner; edits all pets and care),
   both ticking care daily, often on the move and sometimes offline (walks, lifts, cellars).
 - **Sitter** (neighbour, friend, paid sitter) who needs today's routine without an account.
 - **Pets:** dogs and cats only. A cat's day (meals, fresh water, litter) differs from a dog's
@@ -32,8 +32,11 @@ shops. This MVP exists to let ~100 real owners play with the loop and tell us if
 1. **Pet-first start.** A new user can add their first dog or cat (name, species, optional
    breed, birth date/age, weight) and see a sensible routine *before* creating an account;
    the account step (Apple, Google, email) saves it.
-2. **Household.** An owner can invite a partner by link; both see and edit the same pets,
-   routine and history. Either can remove a member; members can leave.
+2. **Household.** Each household has one **owner** (its admin) and members. The household holds
+   the pets, and every member sees and edits the same pets, routine and history. Only the owner
+   invites people by link, removes members, renames or deletes the household, and hands
+   ownership to another member. Members can leave at any time. If the owner leaves or deletes
+   their account, ownership passes to the longest-standing member.
 3. **Pet profiles.** A household can hold several dogs and cats; the user can switch pets
    from anywhere and stay on the same place in the app.
 4. **Daily routine.** Each pet has a routine started from a species default (dog: meals,
@@ -138,7 +141,8 @@ Product decisions (Eyup, 2026-11-22):
 2. The care card is **read-only**; sitters do not tick tasks.
 3. Care card links **don't expire** on their own; they work until the owner turns them off.
 4. **No pet photos** in the MVP; pets show a name initial or species icon.
-5. A household can have **more than two adults**, all with equal rights, soft limit of 6.
+5. A household can have **more than two adults**, soft limit of 6. *Updated 2026-11-23:* one
+   **owner** (admin) plus members, not equal rights (see Need 2). Pets belong to the household.
 6. A dog's streak **includes walks** (meals + meds + walks). This changes the canvas rule.
 7. The beta is **invite-only** (TestFlight + Play closed testing).
 8. G1 target: **≥40%** of households invite a partner within 7 days.

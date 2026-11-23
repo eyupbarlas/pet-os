@@ -72,7 +72,8 @@ features/
   routine/                task list, edit/reorder/pause/remove (ends_on), schedule editor
   health/                 medications (→ tasks), vet visits, vaccinations, vet contact
   places/                 pet places, link-outs (Psibufet, Booksy, own shop)
-  household/              members, invite, remove/leave, replace-card-links sheet, time zone
+  household/              owner view (invite, remove, rename, time zone, transfer, delete) /
+                          member view (read-only + Leave), replace-card-links sheet
   care-card/              create/replace/turn off (online RPCs), content editor, list
   settings/               language, reminders, quiet time, consent, care cards, delete account
   pets/                   pet profile, pet switcher sheet, current-pet store
@@ -116,7 +117,7 @@ app/
       routine/index.tsx, routine/[taskId].tsx
       health/index.tsx, health/med/[medId].tsx
       pet/index.tsx           profile + places + this pet's care card
-      settings/index.tsx      incl. Household (time zone), Care cards list, Delete account
+      settings/index.tsx      incl. Household (owner controls or read-only + Leave), Care cards list, Delete account
     pet-switcher.tsx          formSheet
     task-edit.tsx             modal
     invite.tsx                formSheet (create + share link)
@@ -248,12 +249,14 @@ Result: no user ever sees an upload error dialog, and offline ticks survive a lo
 Before accepting, the app calls `preview_invite(p_token)` (online) and shows one sheet naming the consequences:
 - Target: "Join Ana's household (Ana, Bartek)". Full or expired invite → bilingual error from the RPC's stable code.
 - If the user is the **sole member** of a household with pets: "Burek and Mruczek come with you, with their history." Pets always come along; **the join flow never deletes pets**.
-- If **others remain** in the user's current household: "You'll leave 'Kowalski home'. Burek stays there with Tomek."
+- If **others remain** in the user's current household: "You'll leave 'Kowalski home'. Burek stays there with Tomek." If `my_current.new_owner_name` is set (the user owns that household): add "Tomek becomes the owner."
+- If the target already has a same-name, same-species pet: hint "Ana's household already has a dog called Burek. You can remove the duplicate after joining."
+- The joiner always becomes a **member**, never the owner.
 - Primary button "Join Ana's household"; secondary "Not now".
 On confirm: require a connection, **flush the upload queue** (wait for an empty CRUD queue and a completed upload), then `accept_invite(p_token, p_display_name, p_confirm_leave)`. After success, wait for sync. If the user also had an onboarding draft, offer "Add Burek to Ana's household?". Duplicate same-name pets are left as two pets; the user can delete one from the pet profile with a named confirmation.
 
 ### 4.4 Removed or no household
-When the user has no active `household_member` row after sync (removed, or left): `no-household` screen with neutral copy, "Create a household" (pet-first, skipping sign-in) or "Join with a link".
+When the user has no active `household_member` row after sync (removed, left, or the owner deleted the household): `no-household` screen with neutral copy, "Create a household" (pet-first, skipping sign-in) or "Join with a link".
 
 ## 5. State management (ADR 0004)
 
@@ -261,7 +264,7 @@ When the user has no active `household_member` row after sync (removed, or left)
 - **Session:** `AuthProvider` context over supabase-js auth state.
 - **Small UI state:** Zustand (current pet, transient flags), persisted per user where noted.
 - **Forms:** component state + validators from `@petos/domain/parse`.
-- **Online RPCs:** `data/rpc/*` functions with a `useAsyncAction` hook (loading, "needs a connection", mapped error key). RPC errors come as stable codes (`P0001` + message key such as `invite_expired`, `household_full`, `already_member`, `link_revoked`) mapped to `app.error.*` i18n keys (arch B-7; backend owns the code list).
+- **Online RPCs:** `data/rpc/*` functions with a `useAsyncAction` hook (loading, "needs a connection", mapped error key). RPC errors come as stable codes (`P0001` + message key such as `invite_expired`, `household_full`, `already_member`, `link_revoked`, `not_owner`, `cannot_remove_self`, `owner_must_be_member`, `owner_must_transfer`) mapped to `app.error.*` i18n keys (arch B-7; backend owns the code list).
 
 ## 6. Internationalisation (EN/PL, ADR 0006)
 
@@ -306,18 +309,26 @@ Reference tokens per visual direction → semantic tokens (`color.*`, `space.*`,
 If a session refresh fails because the user was deleted or the refresh token was revoked (e.g. the account was deleted from another device or by the web/manual route), the app runs the sign-out steps without server calls, wipes all per-user keys, and shows a neutral "You've been signed out" screen.
 
 ### 9.5 Account deletion (3 taps)
-Settings → Delete account → Confirm. The confirmation says: "Your ticks stay in the household's history as 'Former member'. Your contact is removed from care cards." Apple users then see Apple's system re-auth sheet to get a fresh `authorizationCode` (UX to confirm it still reads as 3 taps). Then `supabase.functions.invoke('delete-account', { body: { apple_authorization_code? } })` (online; "needs a connection" otherwise) → local wipe (§9.4). The web route is an info page plus an email request handled by runbook (ruling 7); it cannot revoke Apple tokens (documented, accepted for the beta).
+Settings → Delete account → Confirm. The confirmation says: "Your ticks stay in the household's history as 'Former member'. Your contact is removed from care cards." If the user owns a household with other members, it adds "Tomek becomes the owner." (next owner computed locally with backend's rule: the active member with the earliest `joined_at`); if they are the last member, "This also deletes Burek and his history." Apple users then see Apple's system re-auth sheet to get a fresh `authorizationCode` (UX to confirm it still reads as 3 taps). Then `supabase.functions.invoke('delete-account', { body: { apple_authorization_code? } })` (online; "needs a connection" otherwise) → local wipe (§9.4). The web route is an info page plus an email request handled by runbook (ruling 7); it cannot revoke Apple tokens (documented, accepted for the beta).
 
 ## 10. Household, care cards and privacy flows
 
-### 10.1 Invite (ruling 6)
-`invite.tsx` → `create_invite(p_household_id)` (online) → `{ token, expires_at }` → OS share sheet with `https://<domain>/i/<token>`. No typable code. Members can revoke open invites (`revoke_invite`).
+### 10.0 Owner and members (2026-11-23, spec need 2, backend §8.5, ADR 0019)
+- One **owner** per household: `isOwner = household.owner_id === me`. The member list shows an "Owner" label on that row. Nothing about ownership is stored on the phone beyond the synced `owner_id`.
+- **Owner sees** Settings → Household with: Invite, Remove member, Rename, Time zone, Transfer ownership, Delete household, and Leave household.
+- **Members see** a read-only Household screen (name, time zone, members with the owner marked) and **Leave household**. Owner-only controls are hidden, not disabled. Everything else (pets, routine, ticks, health, places, care cards) is equal for all members.
+- If a member's stale screen still sends an owner-only change, the server rejects it (`42501` → discarded, or `not_owner` from an RPC → `app.error.not_owner`).
+- When `owner_id` changes on sync (transfer, auto-transfer), a quiet banner says "Tomek is now the owner" (or "You're now the owner") once.
 
-### 10.2 Remove a member / leave (privacy M1, B2)
-`remove_member(p_member_id)` (online; self = leave). After a successful removal of someone else:
-1. Banner: "Open invite links were turned off" (backend revokes them in the same transaction).
-2. Sheet `replace-card-links` if the household has active care cards: "Replace care card links? The sitter will need the new link." **Replace** calls `rotate_care_card_link` for each active card, then offers to share the new links; **Keep** closes.
-The removed member's own contacts are stripped from cards by the backend (`owner_contacts[].user_id`).
+### 10.1 Invite (ruling 6; owner only)
+`invite.tsx` (owner only) → `create_invite(p_household_id)` (online) → `{ token, expires_at }` → OS share sheet with `https://<domain>/i/<token>`. No typable code. Open invites sync to the owner only; the owner can revoke them (`revoke_invite`).
+
+### 10.2 Remove, leave, transfer, delete (privacy M1, B2)
+- **Remove member** (owner only, never self): `remove_member(p_member_id)`; `cannot_remove_self` is not reachable from the UI.
+- **Leave household** (anyone): `leave_household(p_household_id)`. For the owner the confirmation names the next owner ("Tomek becomes the owner") or, if they are the last member, the pets that will be deleted. After success the phone shows `no-household` on the next sync.
+- **Transfer ownership** (owner only): pick an active member → confirm "Make Tomek the owner? You'll stay a member." → `transfer_ownership(p_household_id, p_member_id)`.
+- **Delete household** (owner only, online): `delete_household(p_household_id)`. The confirmation names the household, its pets and the other members: "This deletes Burek and Mila and their history for Tomek too." Care-card links die at once.
+- `remove_member` and `leave_household` return `{ household_deleted, new_owner_member_id, open_invites_revoked, care_cards }`. After a removal: banner "Open invite links were turned off" when `open_invites_revoked > 0`; if `care_cards > 0`, sheet `replace-card-links`: "Replace care card links? The sitter will need the new link." **Replace** rotates each active card and offers to share; **Keep** closes. The removed member's own contacts are stripped from cards by the backend.
 
 ### 10.3 Care cards (ruling 3, 4, 5; arch M-3; privacy M2)
 - **One pet per link.** Create from the pet tab: `create_care_card_link(p_pet_id, p_lang)` (online) → `{ id, token }`. **Replace link** = `rotate_care_card_link(p_id)`; **Turn off** = `revoke_care_card_link(p_id)`. All online, with a "needs a connection" state; an offline turn-off says it couldn't turn the link off.
@@ -328,7 +339,7 @@ The removed member's own contacts are stripped from cards by the backend (`owner
 - **Settings → Care cards:** list of the household's cards with pet, created date, "last opened" (`last_viewed_at`) and open count (`view_count`), and actions Copy link, Replace link, Turn off.
 
 ### 10.4 Household time zone (PO S-M6)
-Settings → Household → Time zone (PATCH `household.timezone`, IANA picker, default from device). Changing it applies to new ticks and the next close (backend rule).
+Settings → Household → Time zone, **owner only** (PATCH `household.timezone`, IANA picker, default from device; same for Rename → `name`). Changing it applies to new ticks and the next close (backend rule).
 
 ## 11. Deep links
 
@@ -356,9 +367,9 @@ Settings → Household → Time zone (PATCH `household.timezone`, IANA picker, d
 
 | Table | Client reads | Client writes (queued) | Fields the client relies on |
 |---|---|---|---|
-| `household` | yes | bootstrap insert; PATCH `name`, `timezone` | `id, name, timezone, created_by` |
+| `household` | yes | bootstrap insert (server sets `owner_id = me`); PATCH `name`, `timezone` **owner only** | `id, name, timezone, owner_id, created_by` |
 | `household_member` | yes (incl. former members) | bootstrap insert; PATCH own `display_name` | `id, household_id, user_id, display_name, joined_at, left_at` |
-| `invite` | yes (open invites) | never | `id, household_id, token, expires_at` |
+| `invite` | owner only (open invites) | never | `id, household_id, token, expires_at` |
 | `pet` | yes | insert, PATCH, delete | `id, household_id, name, species, breed, birth_date, birth_date_estimated, weight_kg, care_notes, sort_order, created_at` |
 | `task` | yes | insert, PATCH (remove = `ends_on`) | `id, household_id, pet_id, kind ('meal'\|'walk'\|'water'\|'litter'\|'med'\|'custom'), template_key, title, amount, streak_critical, time_of_day (null = any time), every_n_days, anchor_date, ends_on, paused, medication_id, sort_order` |
 | `tick` | yes | insert, delete (undo) | `id (v5), household_id, pet_id, task_id, local_date, slot (0), actor_id, client_at` |
@@ -386,7 +397,7 @@ Requests to backend that follow from the rulings: `care_card_link.pet_id uuid` (
 **C-B6 — Shared domain package.** `@petos/domain` (single package, ADR 0008): `ids` (namespaces + `|` key format; backend uses the same strings in SQL where it computes ids), `day`, `routineDefaults` (template keys `task.<species>.<kind>.<variant>`), `streak` (`dueSet`, `dayOutcome`, `provisionalStreak`, `streak-fixtures.json` run against TS and SQL in CI; backend owns the rules).
 
 **C-B7 — Online RPCs / Edge Functions the client calls** (names as backend; final signatures per backend's revised draft):
-`create_invite(p_household_id)`, `revoke_invite(p_invite_id)`, `preview_invite(p_token)` → `{ household_name, member_names[], full, my_current: { household_name?, other_member_names[], pets[] } }`, `accept_invite(p_token, p_display_name, p_confirm_leave)`, `remove_member(p_member_id)`, `create_care_card_link(p_pet_id, p_lang)`, `rotate_care_card_link(p_id)`, `revoke_care_card_link(p_id)`, `get_app_config()`, Edge Function `delete-account` `{ apple_authorization_code? }`. Errors raise stable codes mapped to `app.error.*`.
+`create_invite(p_household_id)` and `revoke_invite(p_invite_id)` (owner only, `not_owner`), `preview_invite(p_token)` → `{ status, household_name, inviter_name, member_names[], pet_names[], full, my_current: { household_name, other_member_names[], pets[], outcome, new_owner_name } }`, `accept_invite(p_token, p_display_name, p_confirm_leave)`, `remove_member(p_member_id)` (owner only; `cannot_remove_self`), `leave_household(p_household_id)` (anyone; auto-transfer) → `{ household_deleted, new_owner_member_id, open_invites_revoked, care_cards }` (same shape from `remove_member`), `transfer_ownership(p_household_id, p_member_id)` (owner only; `owner_must_be_member`), `delete_household(p_household_id)` (owner only), `create_care_card_link(p_pet_id, p_lang)`, `rotate_care_card_link(p_id)`, `revoke_care_card_link(p_id)`, `get_app_config()`, Edge Function `delete-account` `{ apple_authorization_code? }`. Errors raise stable codes mapped to `app.error.*` in `en_US.json` / `pl_PL.json`, including the owner keys `not_owner`, `cannot_remove_self`, `owner_must_be_member`, `owner_must_transfer`.
 
 **C-B8 — Auth.** Supabase JWT straight to PowerSync; `sub` = `auth.users.id` = `actor_id`/`user_id`. Apple/Google native ID tokens, email OTP with `locale` in user metadata. No Apple code at sign-in; a fresh code only at deletion.
 
@@ -420,7 +431,7 @@ Requests to backend that follow from the rulings: `care_card_link.pet_id uuid` (
 | 2. Care card read-only | Card is script-free HTML; ticks always have a signed-in `actor_id` | Token-scoped write RPC, a small form, a non-user actor; deterministic tick ids still work. |
 | 3. Links don't expire | No expiry UI | Expiry picker + "expired" state; RPC already checks `expires_at`. |
 | 4. No pet photos | Initial/species avatar | Image picker, on-device resize, upload queue, deletion; card would then need `token_hash` + rotate (privacy LATER note). |
-| 5. >2 adults, cap 6 | Member list, preview names | Cap 2 → copy and button state only. |
+| 5. Owner + members (changed 2026-11-23), cap 6 | `isOwner` gating in Household settings; owner copy in leave/delete/join | Back to equal rights → drop the gating and the transfer/delete screens; RPCs unchanged for members. |
 | 6. Dog = meals + meds + walks; cat = meals + meds + water | `routineDefaults` flags, dog template walks, progress copy | Change one defaults table + data backfill of `streak_critical`. |
 | 7. Invite-only beta | Profiles, landing page | Open beta → store listings, production privacy labels; deferred deep linking worth adding. |
 | 8. G1 ≥40% invites created in 7 days | Nothing in the app (SQL aggregates) | Thresholds only. |
@@ -470,3 +481,13 @@ Requests to backend that follow from the rulings: `care_card_link.pet_id uuid` (
 | Ruling 9 metrics from SQL | Client sends only consented product events (C-P4) |
 | Ruling 10 crash reports off | Default off (§4.1, C-P4) |
 | Ruling 13 field names | Backend names throughout; `user_settings` dropped for `profiles.locale` (§6, C-B1) |
+
+## 17. Revision log (2026-11-23, owner role)
+
+| Change | Fix (section) |
+|---|---|
+| Eyup: one owner + members replaces equal rights (spec need 2; backend §8.5, §18; ADR 0019) | `isOwner = household.owner_id === me`; owner-only Invite, Remove, Rename, Time zone, Transfer, Delete household; members get a read-only Household screen with Leave (§2.2, §2.3, §10.0, §10.4) |
+| New RPCs | `leave_household`, `transfer_ownership`, `delete_household`; `remove_member` owner-only, no self; invites owner-only and synced to the owner only (§10.1, §10.2, C-B1, C-B7) |
+| Owner leaving / deleting account / joining elsewhere | Confirmations name the next owner ("Tomek becomes the owner") or the pets deleted with the last member; join sheet uses `my_current.new_owner_name` (§4.3, §9.5, §10.2) |
+| New error keys | `not_owner`, `cannot_remove_self`, `owner_must_be_member`, `owner_must_transfer` → `app.error.*` in both locale files (§5, C-B7) |
+

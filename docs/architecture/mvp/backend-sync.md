@@ -4,6 +4,8 @@
 - **Revision:** phase 4. This revision applies `docs/architecture/mvp/reviews/rulings.md` and the backend MUST-FIX
   items from `docs/architecture/mvp/reviews/architecture.md`, `docs/architecture/mvp/reviews/privacy-security.md` and
   `docs/architecture/mvp/reviews/product-owner.md`. The revision log is in §17.
+- **Revision 2026-11-23 (owner role):** households now have one **owner** plus members (spec need 2,
+  decision 5). See §8.5 and §18.
 - **Inputs:** spec `docs/specs/001-mvp/spec.md` (approved 2026-11-22), `docs/research/stack-choice.md`,
   the Decisions section of `docs/specs/001-mvp/spec.md` (confirmed answers), `pet-os-context`, and the mobile and platform drafts.
 - **Confirmed stack (Eyup):** Supabase Pro in Frankfurt with Supabase Auth (no Clerk),
@@ -42,6 +44,11 @@
   the device (mobile ADR 0005). The phone inserts the household and then the creator's own
   `household_member` row in one transaction. RLS allows that row only as a bootstrap (matches
   mobile C-B3).
+- **Owner.** Each household has exactly one owner, `household.owner_id` (NOT NULL). Only the owner
+  can invite, remove members, rename or delete the household, and transfer ownership. Every member
+  can see and edit all pets, routines, ticks, health records and care cards. Any member can leave.
+  When the owner leaves or deletes their account, ownership passes automatically to the
+  longest-standing active member (§8.5).
 - **Joining.** Joining is a **preview, then an explicit confirmation**. The pets of a sole member
   come along with their history. Joining never deletes pets. Leaving a household that still has
   members is named in the confirmation, and the RPC enforces it. There is no typable invite code.
@@ -113,9 +120,9 @@ Conventions:
 |---|---|---|---|---|
 | `profiles` | One row per auth user, created by trigger | `id = user_id`, `display_name`, `locale` (`en_US`/`pl_PL`), `consent_usage_stats`, `consent_crash_reports`, `consent_marketing`, `consent_updated_at`, `consent_policy_version` | Owner (update) | That user |
 | `notification_settings` | Nudge and quiet time, created by trigger | `id = user_id`, `quiet_start`, `quiet_end`, `nudge_enabled`, `nudge_at` | Owner (update) | That user |
-| `household` | The sharing unit | `name`, `timezone` (IANA), `created_by`, `last_closed_date` (server-only, not synced) | Members: insert (bootstrap), update `name`/`timezone` | Members |
-| `household_member` | Who is in the household | `household_id`, `user_id`, `display_name`, `joined_at`, `left_at`, `removed_by` | Own `display_name` only. Rows are created by trigger or RPC | Members (former members too, for names) |
-| `invite` | Partner invite link | `household_id`, `token` (256-bit), `expires_at` (+7 days), `accepted_by`, `accepted_at`, `revoked_at`, `landing_view_count` | RPC only | Members (open invites only) |
+| `household` | The sharing unit | `name`, `timezone` (IANA), **`owner_id`** (NOT NULL), `created_by`, `last_closed_date` (server-only, not synced) | Insert (bootstrap; `owner_id` forced to the creator). **Owner** updates `name`/`timezone`. `owner_id` changes only through RPCs | Members |
+| `household_member` | Who is in the household (no `role` column: the owner is `household.owner_id`) | `household_id`, `user_id`, `display_name`, `joined_at`, `left_at`, `removed_by` | Own `display_name` only. Rows are created by trigger or RPC | Members (former members too, for names) |
+| `invite` | Partner invite link | `household_id`, `token` (256-bit), `expires_at` (+7 days), `accepted_by`, `accepted_at`, `revoked_at`, `landing_view_count` | RPC only (owner) | **Owner only** (open invites) |
 | `pet` | Dog or cat | `name`, `species`, `breed`, `birth_date`, `birth_date_estimated`, `weight_kg`, `care_notes`, `sort_order` | Members (insert/update/delete) | Members |
 | `task` | Routine item | `pet_id`, `kind`, `template_key`, `title`, `amount`, `streak_critical` (trigger-seeded), `time_of_day` (null = any time), `every_n_days`, `anchor_date`, `ends_on`, `paused`, `medication_id`, `sort_order` | Members (insert/update; **no delete**) | Members |
 | `tick` | Task done on a day | `task_id`, `pet_id`, `local_date`, `slot`, `actor_id`, `client_at`, `received_at` | Members (insert; delete only for today/yesterday) | Members |
@@ -288,10 +295,11 @@ streams:
         SELECT household_id FROM household_member
         WHERE user_id = auth.user_id() AND left_at IS NULL
     queries:
-      - SELECT id, name, timezone, created_by, created_at, updated_at FROM household WHERE id IN my_households   # no last_closed_date
+      - SELECT id, name, timezone, owner_id, created_by, created_at, updated_at FROM household WHERE id IN my_households   # no last_closed_date
       - SELECT * FROM household_member WHERE household_id IN my_households
-      - SELECT id, household_id, token, created_by, created_at, expires_at FROM invite
-          WHERE household_id IN my_households AND accepted_at IS NULL AND revoked_at IS NULL
+      - SELECT id, household_id, token, created_by, created_at, expires_at FROM invite   # owner only
+          WHERE household_id IN (SELECT id FROM household WHERE owner_id = auth.user_id())
+            AND accepted_at IS NULL AND revoked_at IS NULL
       - SELECT * FROM pet            WHERE household_id IN my_households
       - SELECT * FROM task           WHERE household_id IN my_households
       - SELECT * FROM tick           WHERE household_id IN my_households
@@ -440,29 +448,36 @@ sends only the changed columns.
 
 ### 7.3 Roles and authorisation matrix
 
-There is one role in the MVP, **member**, and all members have equal rights. Sitters use the card
-only. `role` has a check constraint with the single value `member`.
+Each household has exactly one **owner** (`household.owner_id`) and any number of **members**, up
+to 6 in total. Sitters use the card only.
 
-| Action | Signed in, no household | Member | Former member | Card viewer (`anon`) | Service role / postgres |
-|---|---|---|---|---|---|
-| Create a household (bootstrap) | ✓ | ✓ | ✓ | ✗ | ✓ |
-| Read household data | ✗ | ✓ | ✗ | One-pet subset via `get_care_card` | ✓ |
-| Write pets, tasks, health, places, vet | ✗ | ✓ (no task delete) | ✗ | ✗ | ✓ |
-| Insert tick | ✗ | ✓ (window) | ✗ (42501) | ✗ | ✓ |
-| Delete tick | ✗ | ✓ (today/yesterday) | ✗ (no-op) | ✗ | ✓ |
-| Set or clear a rest day | ✗ | ✓ (today) | ✗ | ✗ | ✓ |
-| Write `streak_day` | ✗ | ✗ | ✗ | ✗ | functions only |
-| Create or revoke an invite | ✗ | ✓ | ✗ | ✗ | — |
-| Preview or accept an invite | ✓ | ✓ (with confirm-leave) | ✓ (if the invite is valid) | ✗ | — |
-| Remove a member or leave | — | ✓ any member | ✗ | ✗ | — |
-| Create, rotate or revoke a card | ✗ | ✓ | ✗ | ✗ | — |
-| Delete own account | ✓ | ✓ | ✓ | ✗ | executes |
+| Action | Signed in, no household | Owner | Member | Former member | Card viewer (`anon`) | Service role / postgres |
+|---|---|---|---|---|---|---|
+| Create a household (becomes owner) | ✓ | ✓ | ✓ | ✓ | ✗ | ✓ |
+| Read household data | ✗ | ✓ | ✓ | ✗ | One-pet subset via `get_care_card` | ✓ |
+| Write pets, tasks, health, places, vet | ✗ | ✓ | ✓ (no task delete for either) | ✗ | ✗ | ✓ |
+| Insert or delete ticks, set rest days | ✗ | ✓ | ✓ (windows apply) | ✗ (42501 / no-op) | ✗ | ✓ |
+| Write `streak_day` | ✗ | ✗ | ✗ | ✗ | ✗ | functions only |
+| Create, rotate or revoke a care card | ✗ | ✓ | ✓ | ✗ | ✗ | — |
+| **Rename the household, change its time zone** | ✗ | ✓ | ✗ | ✗ | ✗ | — |
+| **Create or revoke an invite; see open invites** | ✗ | ✓ | ✗ | ✗ | ✗ | — |
+| **Remove another member** | — | ✓ | ✗ | ✗ | ✗ | — |
+| **Transfer ownership** | — | ✓ | ✗ | ✗ | ✗ | — |
+| **Delete the household** | — | ✓ | ✗ | ✗ | ✗ | — |
+| Leave the household | — | ✓ (auto-transfer) | ✓ | ✗ | ✗ | — |
+| Preview or accept an invite | ✓ | ✓ (confirm-leave; auto-transfer) | ✓ (confirm-leave) | ✓ (if valid) | ✗ | — |
+| Delete own account | ✓ | ✓ (auto-transfer) | ✓ | ✓ | ✗ | executes |
+
+The time zone is owner-only as a household setting. If Eyup wants members to change it, that is a
+one-line policy change.
 
 **Enforcement:**
 - RLS is on for every table.
 - Policies use `household_id IN (SELECT private.my_household_ids())`.
 - Grants are explicit (§11.1).
-- RPCs check `auth.uid()` inside the function.
+- RPCs check `auth.uid()` inside the function. Owner-only RPCs check
+  `household.owner_id = auth.uid()` and raise `not_owner` otherwise.
+- The `household` update policy is `owner_id = auth.uid()`.
 - `anon` can execute exactly four functions: `get_care_card`, `record_invite_landing`, `health`
   and `get_app_config`.
 
@@ -472,12 +487,12 @@ only. `role` has a check constraint with the single value `member`.
 
 ### 8.1 Create (offline-capable, right after sign-in)
 
-1. The client inserts `household`. The `BEFORE INSERT` trigger sets `created_by := auth.uid()`
-   and validates the time zone.
+1. The client inserts `household`. The `BEFORE INSERT` trigger sets `created_by := auth.uid()` and
+   **`owner_id := auth.uid()`**, so the creator is the owner, and validates the time zone.
 2. The client inserts its own `household_member` row. RLS policy `member_bootstrap` accepts it only
    when all of these hold:
    - `user_id = auth.uid()`;
-   - the household's `created_by = auth.uid()`;
+   - the household's `owner_id = auth.uid()`;
    - the household has **no member rows yet**.
 
    The check runs in `private.can_bootstrap`, a `SECURITY DEFINER` function, because the caller
@@ -489,7 +504,7 @@ member row exists.
 
 ### 8.2 Invite and join (online; ruling 6 and 11, PO B-M2/M-4)
 
-1. **Create.** `rpc('create_invite', { p_household_id })` returns `{ token, expires_at }`. The app
+1. **Create (owner only).** `rpc('create_invite', { p_household_id })` returns `{ token, expires_at }`. The app
    shares `https://<domain>/i/<token>`. The token is 256-bit, valid for 7 days, single use and
    revocable (`revoke_invite`). There is no typable code (ruling 6). Install friction is handled by
    the beta landing page (platform).
@@ -510,7 +525,8 @@ member row exists.
      my_current: null | { household_name,
                           other_member_names[],     -- empty if the caller is the sole member
                           pets: [{ id, name, species }],
-                          outcome: 'pets_come_along' | 'leave_pets_stay' } }
+                          outcome: 'pets_come_along' | 'leave_pets_stay',
+                          new_owner_name: null | text } }  -- set when the caller owns a household that others stay in
    ```
    `accept_invite(p_token text, p_display_name text, p_confirm_leave boolean) returns jsonb { household_id }`
    is also **final**, with the error keys in §11.5.
@@ -518,6 +534,7 @@ member row exists.
    - `pets_come_along` (the caller is the sole member): "Burek and Mila come with you, with their
      history."
    - `leave_pets_stay` (others remain): "You'll leave 'Kowalski home'. Burek stays there with Tomek."
+     If `new_owner_name` is set, add: "Tomek becomes the owner."
    - If the target already has a pet with the same name and species, show a hint: "Ana's household
      already has a dog called Burek. You can remove the duplicate after joining." The join never
      deletes pets (PO R9). A duplicate is removed later as an ordinary, named pet deletion.
@@ -531,8 +548,10 @@ member row exists.
        sitter links keep working. The `vet_contact` moves if the target has none, and is otherwise
        dropped. The old household (now empty of pets) and its invites are deleted.
      - **Others remain:** if `p_confirm_leave` is not true, raise `confirm_leave_required`.
-       Otherwise run the same steps as `remove_member(self)` (§8.3) on the old household.
-   - Upsert the member row with `p_display_name`, reactivating a former row if there is one. Mark
+       Otherwise run the same steps as `leave_household` (§8.3) on the old household, including the
+       automatic ownership transfer.
+   - Upsert the member row with `p_display_name` as a **member** of the target (never its owner),
+     reactivating a former row if there is one. Mark
      the invite accepted. Return `{ household_id }`.
 6. **Next sync.** The partner sees the household's pets on Today.
 
@@ -541,16 +560,21 @@ constraint, because bootstrap must stay offline-capable.
 
 ### 8.3 Remove and leave (online)
 
-`rpc('remove_member', { p_member_id })` lets any active member remove any member, including
-themselves (that is how leaving works). In one transaction it:
+- `rpc('remove_member', { p_member_id })` is **owner only**. It rejects the owner's own row
+  (`cannot_remove_self`): an owner leaves with `leave_household`.
+- `rpc('leave_household', { p_household_id })` is for **any member**. If the caller is the owner,
+  ownership first passes to the longest-standing active member (§8.5). If no other member remains,
+  the household is deleted.
 
-1. sets `left_at` and `removed_by`;
+Both run in one transaction that:
+
+1. sets `left_at` (and `removed_by` for a removal);
 2. **revokes every open invite of the household** (privacy B2);
 3. **strips that user's entries** (`user_id` match) from `owner_contacts` on all of the household's
    cards (privacy B4);
 4. deletes the household if no active member remains.
 
-It returns `{ household_deleted, open_invites_revoked, care_cards: n }`. The app uses this to offer
+Both return `{ household_deleted, new_owner_member_id, open_invites_revoked, care_cards: n }`. The app uses this to offer
 "Replace care card links? The sitter will need the new link." (Replace rotates, Keep does nothing;
 privacy M1, owned by mobile.) The removed member's row stays, so their name stays on past ticks, and
 rejoining reactivates it. The removed member loses access on their next sync.
@@ -567,6 +591,8 @@ rejoining reactivates it. The removed member loses access on their next sync.
 2. **Commit point.** In one transaction, `select private.delete_user_data(uid)` then
    `auth.admin.deleteUser(uid)`. `delete_user_data`:
    - deletes each household where the user is the **last** active member (cascading everything);
+   - in every other household the user **owns**, transfers ownership to the longest-standing active
+     member (§8.5);
    - strips the user's `owner_contacts` entries from cards in every household they belong to;
    - deletes every `household_member` row of the user (former rows too), so the name is gone
      everywhere;
@@ -611,6 +637,38 @@ page (PO2): "Your ticks stay in the household's history as 'Former member'. Your
 from care cards."
 
 ---
+
+### 8.5 Ownership: transfer, auto-transfer, deleting the household (2026-11-23)
+
+- **Model.** `household.owner_id uuid NOT NULL → auth.users ON DELETE RESTRICT`. One NOT NULL column
+  means **exactly one owner by construction**. A `role` column would need a partial unique index (at
+  most one) plus a deferred constraint trigger (at least one). The RLS check is simply
+  `owner_id = auth.uid()`. The app shows "Owner" by comparing `household.owner_id` with
+  `household_member.user_id`. The old `household_member.role` column is dropped.
+- **DB invariants:**
+  1. `owner_id` is set to the creator on insert.
+  2. Clients have **no** `UPDATE` grant on `owner_id`.
+  3. A `BEFORE UPDATE OF owner_id` trigger requires the new owner to be an active member of the
+     household.
+  4. A `BEFORE UPDATE OF left_at` / `BEFORE DELETE` trigger on `household_member` raises
+     `owner_must_transfer` if the row is the current owner's. Cascades from a household delete are
+     exempt (`pg_trigger_depth() > 1`). So the owner is always an active member.
+  5. `ON DELETE RESTRICT` on `owner_id` is a safety net: an auth user can't be deleted while they
+     still own a household.
+- **Next owner.** `private.next_owner(p_household, p_excluding_user)` returns the active member with
+  the earliest `joined_at`, with ties broken by `id`. It is used by `leave_household`, by
+  `accept_invite` (when it leaves the caller's old household) and by `delete_user_data`. If it
+  returns no one, the household is deleted. The transfer is silent apart from the result field;
+  mobile shows "Tomek is now the owner" on the next sync.
+- **`transfer_ownership(p_household_id, p_member_id)`** (owner only) hands ownership to another
+  active member. The former owner stays a member.
+- **`delete_household(p_household_id)`** (owner only, online) deletes the household. FK cascades
+  remove its pets, routines, ticks, streak days, health records, places, care cards (the links die
+  at once and show "no longer available"), invites, reminder preferences and member rows. Pets
+  belong to the household, so they go too. The other members' phones drop everything on the next
+  sync and show the no-household screen. The app's confirmation names the household, the pets and
+  the other members ("This deletes Burek and Mila and their history for Tomek too"). Nothing goes
+  into `deletion_followup`, because no account is deleted.
 
 ## 9. Care card (ADR 0018)
 
@@ -745,6 +803,7 @@ create table public.household (
   id uuid primary key,
   name text check (char_length(name) <= 60),
   timezone text not null default 'Europe/Warsaw',
+  owner_id uuid not null references auth.users(id) on delete restrict,  -- exactly one owner (§8.5); set by trigger, changed by RPC only
   created_by uuid references auth.users(id) on delete set null,   -- set by trigger
   last_closed_date date,                                          -- server-only, not synced
   created_at timestamptz not null default now(),
@@ -755,7 +814,6 @@ create table public.household_member (
   id uuid primary key default gen_random_uuid(),
   household_id uuid not null references public.household(id) on delete cascade,
   user_id uuid not null references auth.users(id) on delete cascade,
-  role text not null default 'member' check (role in ('member')),
   display_name text check (char_length(display_name) <= 60),
   joined_at timestamptz not null default now(),
   left_at timestamptz,
@@ -764,6 +822,7 @@ create table public.household_member (
 );
 create index on public.household_member (user_id) where left_at is null;
 create index on public.household_member (removed_by);
+create index on public.household (owner_id);
 
 create table public.invite (
   id uuid primary key default gen_random_uuid(),
@@ -997,6 +1056,7 @@ create or replace function private.household_before_insert()
 returns trigger language plpgsql security definer set search_path = '' as $$
 begin
   new.created_by := (select auth.uid());
+  new.owner_id   := (select auth.uid());            -- creator = owner
   new.last_closed_date := null;
   if not exists (select 1 from pg_catalog.pg_timezone_names where name = new.timezone) then
     perform private.raise_app('invalid_timezone');
@@ -1010,10 +1070,47 @@ create trigger household_before_insert before insert on public.household
 create or replace function private.can_bootstrap(p_household uuid)
 returns boolean language sql stable security definer set search_path = '' as $$
   select exists (select 1 from public.household h
-                 where h.id = p_household and h.created_by = (select auth.uid()))
+                 where h.id = p_household and h.owner_id = (select auth.uid()))
      and not exists (select 1 from public.household_member m where m.household_id = p_household)
 $$;
--- household_member BEFORE INSERT (client path): force role='member', left_at=null, joined_at=now()
+-- household_member BEFORE INSERT (client path): force left_at=null, joined_at=now()
+
+-- ownership invariants (§8.5)
+create or replace function private.next_owner(p_household uuid, p_excluding uuid)
+returns uuid language sql stable security definer set search_path = '' as $$
+  select m.user_id from public.household_member m
+  where m.household_id = p_household and m.left_at is null and m.user_id <> p_excluding
+  order by m.joined_at, m.id limit 1
+$$;
+create or replace function private.household_owner_guard()
+returns trigger language plpgsql security definer set search_path = '' as $$
+begin
+  if new.owner_id is distinct from old.owner_id and not exists (
+       select 1 from public.household_member m
+       where m.household_id = new.id and m.user_id = new.owner_id and m.left_at is null) then
+    perform private.raise_app('owner_must_be_member');
+  end if;
+  return new;
+end $$;
+create trigger household_owner_guard before update of owner_id on public.household
+  for each row execute function private.household_owner_guard();
+create or replace function private.member_owner_guard()
+returns trigger language plpgsql security definer set search_path = '' as $$
+declare r record;
+begin
+  r := coalesce(old, new);
+  if pg_trigger_depth() = 1
+     and (tg_op = 'DELETE' or (new.left_at is not null and old.left_at is null))
+     and exists (select 1 from public.household h where h.id = r.household_id and h.owner_id = r.user_id) then
+    perform private.raise_app('owner_must_transfer');
+  end if;
+  if tg_op = 'DELETE' then return old; end if;
+  return new;
+end $$;
+create trigger member_owner_guard before update of left_at or delete on public.household_member
+  for each row execute function private.member_owner_guard();
+-- RPCs that run as SECURITY DEFINER at depth 1 therefore always transfer first:
+--   update household set owner_id = private.next_owner(h, uid) ...; then set left_at / delete.
 -- (timezone is also validated on UPDATE by a similar trigger)
 
 -- task: seed streak_critical; same-household medication (privacy B1)
@@ -1231,7 +1328,7 @@ create policy pet_rw on public.pet for all to authenticated
   using      (household_id in (select private.my_household_ids()))
   with check (household_id in (select private.my_household_ids()));
 -- Same "household_rw" policy on: medication, task, tick, rest_day, health_record,
--- vet_contact, pet_place, care_card_link; select-only policy on streak_day, invite.
+-- vet_contact, pet_place, care_card_link; select-only policy on streak_day (invite: owner-only, below).
 -- Grants below decide which commands are possible at all.
 
 create policy household_select on public.household for select to authenticated
@@ -1239,7 +1336,10 @@ create policy household_select on public.household for select to authenticated
 create policy household_insert on public.household for insert to authenticated
   with check (true);                                     -- created_by forced by trigger
 create policy household_update on public.household for update to authenticated
-  using (id in (select private.my_household_ids()));
+  using (owner_id = (select auth.uid()))                 -- owner only (rename, time zone)
+  with check (owner_id = (select auth.uid()));
+create policy invite_select_owner on public.invite for select to authenticated   -- replaces the member-wide select
+  using (household_id in (select h.id from public.household h where h.owner_id = (select auth.uid())));
 create policy member_select on public.household_member for select to authenticated
   using (household_id in (select private.my_household_ids()));
 create policy member_bootstrap on public.household_member for insert to authenticated
@@ -1264,7 +1364,7 @@ grant update (title, template_key, amount, time_of_day, every_n_days, anchor_dat
 grant select, insert, delete on public.tick, public.rest_day to authenticated;      -- no UPDATE
 grant select, insert, update on public.pet_place, public.vet_contact, public.reminder_pref to authenticated;
 grant select, insert on public.household to authenticated;
-grant update (name, timezone) on public.household to authenticated;
+grant update (name, timezone) on public.household to authenticated;   -- not owner_id
 grant select, insert on public.household_member to authenticated;   -- insert = bootstrap only (policy)
 grant update (display_name) on public.household_member to authenticated;
 grant select on public.invite, public.streak_day, public.care_card_link to authenticated;
@@ -1279,6 +1379,7 @@ grant execute on function public.get_care_card(text), public.health(), public.ge
 grant execute on function
   public.create_invite(uuid), public.revoke_invite(uuid), public.preview_invite(text),
   public.accept_invite(text, text, boolean), public.remove_member(uuid),
+  public.leave_household(uuid), public.transfer_ownership(uuid, uuid), public.delete_household(uuid),
   public.create_care_card_link(uuid, text), public.rotate_care_card_link(uuid),
   public.revoke_care_card_link(uuid)
   to authenticated;
@@ -1290,17 +1391,20 @@ RPC signatures (bodies per §8–§9). Every RPC is `SECURITY DEFINER`, sets `se
 
 | RPC | Returns | Error keys (mobile maps them to `app.error.*`) |
 |---|---|---|
-| `create_invite(p_household_id)` | `{ token, expires_at }` | `not_a_member` |
-| `revoke_invite(p_invite_id)` | void | `not_a_member` |
+| `create_invite(p_household_id)` (**owner**) | `{ token, expires_at }` | `not_a_member`, `not_owner` |
+| `revoke_invite(p_invite_id)` (**owner**) | void | `not_a_member`, `not_owner` |
 | `preview_invite(p_token)` | §8.2 shape (status and `full` inside, no raise) | — |
 | `record_invite_landing(p_token)` (anon) | `{ open }`; increments `landing_view_count` when open | — |
 | `accept_invite(p_token, p_display_name, p_confirm_leave)` | `{ household_id }` | `invite_not_found`, `invite_expired`, `invite_revoked`, `invite_used`, `household_full`, `already_member`, `confirm_leave_required` |
-| `remove_member(p_member_id)` | `{ household_deleted, open_invites_revoked, care_cards }` | `not_a_member`, `member_not_found` |
+| `remove_member(p_member_id)` (**owner**) | `{ household_deleted, new_owner_member_id, open_invites_revoked, care_cards }` | `not_a_member`, `not_owner`, `member_not_found`, `cannot_remove_self` |
+| `leave_household(p_household_id)` (any member) | same shape as `remove_member` | `not_a_member` |
+| `transfer_ownership(p_household_id, p_member_id)` (**owner**) | void | `not_owner`, `member_not_found` |
+| `delete_household(p_household_id)` (**owner**) | void | `not_owner` |
 | `create_care_card_link(p_pet_id, p_lang)` | `{ id, token }`. The household is derived from the pet, so mobile's extra `p_household_id` is dropped and a foreign pet can't be named | `not_a_member`, `pet_not_found` |
 | `rotate_care_card_link(p_id)` / `revoke_care_card_link(p_id)` | `text` / void | `not_a_member`, `card_not_found` |
 | `get_care_card(p_token)` (anon) | jsonb or NULL | — |
 | `health()`, `get_app_config()` (anon) | jsonb | — |
-| Trigger errors | — | `cross_household_reference`, `invalid_timezone` |
+| Trigger errors | — | `cross_household_reference`, `invalid_timezone`, `owner_must_be_member`, `owner_must_transfer` |
 
 ### 11.6 CI check and minimal RLS tests (privacy B3c)
 
@@ -1341,7 +1445,7 @@ end $$;
 
 `supabase/tests/rls_cases.sql` seeds two households (H1 with users A and B, H2 with user C).
 It sets `set local role authenticated; set local request.jwt.claims = '{"sub":"<uid>"}'`, or
-`role anon`, and asserts five cases:
+`role anon`, and asserts six cases:
 
 1. **Non-member.** C can't `select` H1's pets (0 rows), and C's `insert` of a tick into H1 fails
    with `42501`.
@@ -1355,6 +1459,12 @@ It sets `set local role authenticated; set local request.jwt.claims = '{"sub":"<
 5. **Foreign pet on a card.** A tries `create_care_card_link(<H2 pet id>)` and gets `pet_not_found`.
    A direct `update care_card_link set pet_id = <H2 pet>` is denied because there is no column
    grant, and the composite FK would reject it anyway.
+
+6. **Owner-only actions** (2026-11-23). As member B, `create_invite`, `remove_member(A)`,
+   `transfer_ownership`, `delete_household` and `update household set name = …` all fail
+   (`not_owner`, or 0 rows for the update). A direct `update household set owner_id = B` is denied
+   (no column grant). When owner A calls `leave_household`, `owner_id` becomes the member with the
+   earliest `joined_at`, and A's row has `left_at` set.
 
 The full pgTAP suite is LATER.
 
@@ -1459,9 +1569,9 @@ design is kept so it can be added without breaking anything:
 | S4 | **Ticks** | Local `INSERT OR IGNORE`. Undo is a `DELETE`. Undoing **another member's** tick asks for confirmation first. The UI offers today and yesterday. "Done" means the row exists. "Done by" is `household_member.display_name` for `(household_id, actor_id)`, or "Former member" if `actor_id` is null or has no member row. Credit flips after sync are silent. |
 | S5 | **Rest days** | The UI offers today only. Setting and clearing a rest day are both queued writes. |
 | S6 | **Household day and streak** | `localDate(now, household.timezone)`. `packages/domain/streak` `provisionalStreak(latestStreakDay, openDays[])` covers every unclosed day: rest bridges, the first day is neutral, and a third miss resets. It must pass `streak-fixtures.json`. `streak_critical` is read-only. |
-| S7 | **Bootstrap** | **Confirmed as mobile C-B3:** one transaction inserts `household` → the creator's `household_member` (`user_id = me`, `display_name`) → `pet` → `task`s. No `RETURNING`. There is no server trigger. |
+| S7 | **Bootstrap** | **Confirmed as mobile C-B3:** one transaction inserts `household` → the creator's `household_member` (`user_id = me`, `display_name`) → `pet` → `task`s. No `RETURNING`. There is no server trigger. The server sets `household.owner_id = me`, so the creator is the owner (the client may send it, but the value is overwritten). |
 | S8 | **Join** | Flow: `invite/[token]` → sign in → display name → `preview_invite` → confirm sheet naming what leaves and what comes along → flush the queue → `accept_invite(p_token, p_display_name, p_confirm_leave)`. No pet creation for invited new users. No typable code. |
-| S9 | **Remove and leave** | `remove_member(id)`. If the result has `care_cards > 0`, offer "Replace care card links?" (rotate per card). |
+| S9 | **Owner, remove and leave** | "Owner" = `household.owner_id`. Show owner-only controls (invite, remove, rename, time zone, transfer, delete household) only when `owner_id = me`. A member's queued rename would be discarded with `42501`. `remove_member(p_member_id)` is owner only. `leave_household(p_household_id)` is for anyone, with auto-transfer. `transfer_ownership(p_household_id, p_member_id)`. `delete_household(p_household_id)` needs a confirmation naming the pets and the other members. If a result has `care_cards > 0`, offer "Replace care card links?". Open invites sync to the owner only. |
 | S10 | **Care cards** | Online RPCs only (`create_care_card_link(p_pet_id, p_lang)`, `rotate_…`, `revoke_…`). The editor updates `owner_contacts` (with "me" carrying `user_id`), `note`, `lang` and `show_vet` as queued updates. Show the public-link warning. The owner previews the card in the browser. |
 | S11 | **Auth and deletion** | §7.2 and §8.4: `signInWithIdToken` or OTP with `data: { locale, display_name }`. Deletion uses Apple re-auth for a fresh code, then `functions.invoke('delete-account', …)`, then `disconnectAndClear()`. If a refresh says the user no longer exists, clear everything locally. Don't store Apple codes at sign-in. |
 | S12 | **Errors** | RPCs raise `P0001` with the message keys in §11.5. Mobile maps them to `app.error.<key>` in `en_US.json` and `pl_PL.json`. |
@@ -1531,7 +1641,7 @@ design is kept so it can be added without breaking anything:
 | 0016 | `0016-server-owned-streak.md` | The streak is computed in SQL on the server, with a provisional value on the phone, rest days today only, and shared fixtures |
 | 0017 | `0017-no-anonymous-auth-sign-in-before-server-data.md` | No anonymous auth. The client bootstraps household membership under RLS |
 | 0018 | `0018-care-card-token-rpc.md` | One-pet care card behind a token-gated `SECURITY DEFINER` RPC, with the token in plaintext |
-| 0019 | `0019-membership-and-account-deletion.md` | Equal members, preview-and-confirm join, removal revokes invites and strips contacts, deletion with a follow-up queue |
+| 0019 | `0019-membership-and-account-deletion.md` | One owner (`household.owner_id`) plus members with auto-transfer, preview-and-confirm join, removal revokes invites and strips contacts, deletion with a follow-up queue |
 
 ---
 
@@ -1542,7 +1652,7 @@ design is kept so it can be added without breaking anything:
 | 2. Sitters don't tick | **Sitters tick on the card** | Add an anon RPC `care_card_tick(p_token, p_task_id)`. It inserts the deterministic tick (same id, so it is idempotent with members' ticks) with `actor_id = NULL` and a new `actor_card_id`, and the tick counts toward the streak. It is rate-limited by the Worker, and the page needs a script, so the CSP loosens. Sitter **accounts** (a `sitter` role with `valid_until`) are a larger change and not recommended for the beta. |
 | 3. No auto-expiry | **Links expire** | Set `expires_at` at creation. The RPC already checks it. Add a UI picker. |
 | 4. No photos | **Profile photo** | Storage bucket `pet-photos/{household_id}/{pet_id}.jpg` with storage RLS by folder, resizing on the phone, deleting objects in `delete_user_data` and on pet delete, and a signed URL in `get_care_card`. Then switch the card token to a hash (privacy R1 LATER). New ADR. |
-| 5. Up to 6 equal adults | **Two only**, or larger | Change the cap constant in `accept_invite`. |
+| 5. Owner + members, up to 6 | **Two only**, larger, or back to equal rights | Change the cap constant in `accept_invite`. Equal rights again: replace the `owner_id` checks with membership checks. The column can stay. |
 | 6. Dog = meals + meds + walks | **Changes again** | Change the seed in `task_before_write` and `packages/domain`, plus a one-off `UPDATE task SET streak_critical = …`. Closed days stay frozen. |
 | 1. Vet finder and Info library out | **In** | No backend tables. The Places proxy is platform's. |
 | 7. Invite-only beta | **Open beta** | Budget PowerSync Pro ($49). Bring the DPA work and the automated web deletion forward. Consider CAPTCHA on OTP. |
@@ -1589,3 +1699,17 @@ design is kept so it can be added without breaking anything:
 | Platform B10 (D30 signal) | Platform | Defined D30 "active" as at least 1 tick as actor on that household day, in days 28–32 after joining. There is no server-side check-in. Added the `analytics.d30_retention` view (§11.7). |
 | Platform B9 | Platform | `consent_crash_reports` is in `profiles` (default false). |
 | Mobile C-B1/C-B6 (signatures) | Mobile | Confirmed: `care_card_link.pet_id`; tick unique `(task_id, local_date, slot)` with no `action` column; `DELETE` grant with window guard and `AFTER DELETE` recompute; rest days today only; `profiles` and `notification_settings` created by an `auth.users` trigger; no `DELETE` on `task`. **Final:** `preview_invite(p_token)` returns a superset of the mobile shape; `accept_invite(p_token, p_display_name, p_confirm_leave)`. `create_care_card_link(p_pet_id, p_lang)` (household derived from the pet; mobile drops `p_household_id`). |
+
+---
+
+## 18. Revision log (2026-11-23, owner role)
+
+| Change | Source | Fix |
+|---|---|---|
+| Owner + members replaces equal rights | Eyup; spec need 2, decision 5 | Added `household.owner_id uuid NOT NULL` (exactly one owner by construction; simpler than a role column with a partial unique index and a deferred check). Dropped `household_member.role` (§8.5, §11.2). |
+| Owner-only actions | Eyup | `create_invite`, `revoke_invite`, `remove_member` (not self), the new `transfer_ownership` and `delete_household` check `owner_id = auth.uid()` (`not_owner`). The household rename/time-zone RLS update policy is `owner_id = auth.uid()`. Open invites sync to the owner only (§7.3, §6.1, §11.5). |
+| Bootstrap creator = owner | Eyup | The `household_before_insert` trigger forces `owner_id := auth.uid()`. `can_bootstrap` checks `owner_id` (§8.1). |
+| Leave and auto-transfer | Eyup | New `leave_household(p_household_id)` for any member. Ownership passes to the earliest `joined_at` active member (`private.next_owner`), and the household is deleted if no one remains. The same rule applies in `accept_invite` (leaving the old household) and in `delete_user_data` (§8.3–§8.5). |
+| Exactly one owner in the DB | Eyup | NOT NULL; no client grant on `owner_id`; a trigger requires the new owner to be an active member; a trigger blocks the owner's membership from ending without a transfer (`owner_must_transfer`); `ON DELETE RESTRICT` on the auth user (§8.5, §11.3). |
+| Delete the household | Eyup | `delete_household` (owner only) cascades everything, including pets, cards and invites. Other members drop it on the next sync (§8.5). |
+| Tests and contracts | — | RLS test 6 (owner-only). S7/S9 and the RPC table updated. ADR 0019 amended. |
