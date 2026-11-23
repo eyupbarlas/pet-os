@@ -125,7 +125,8 @@ The full reviews and the rulings that settled reviewer disagreements are in [rev
 
 ## Still open
 
-- **Domain name** for the care card, invite and deletion pages. Eyup is choosing one.
+- **Domain:** Eyup chose `healthypaws.io` (2026-11-23) for the care card, invite, deletion and
+  privacy pages and the auth email sender. It needs to be bought; the designs already use it.
 
 ## Week-one checks (unverified)
 

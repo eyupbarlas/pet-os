@@ -27,7 +27,7 @@ architecture review (P-7) advised starting without it.
 
 ## Decision
 
-Option A. Send from `no-reply@mail.<domain>`, with SPF, DKIM and DMARC (`p=none`) in Cloudflare
+Option A. Send from `no-reply@mail.healthypaws.io`, with SPF, DKIM and DMARC (`p=none`) in Cloudflare
 DNS. Use the EU sending region, and turn off open and click tracking. Move to B when a third
 language or richer templates are needed.
 

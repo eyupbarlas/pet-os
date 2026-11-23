@@ -321,7 +321,7 @@ Settings → Delete account → Confirm. The confirmation says: "Your ticks stay
 - When `owner_id` changes on sync (transfer, auto-transfer), a quiet banner says "Tomek is now the owner" (or "You're now the owner") once.
 
 ### 10.1 Invite (ruling 6; owner only)
-`invite.tsx` (owner only) → `create_invite(p_household_id)` (online) → `{ token, expires_at }` → OS share sheet with `https://<domain>/i/<token>`. No typable code. Open invites sync to the owner only; the owner can revoke them (`revoke_invite`).
+`invite.tsx` (owner only) → `create_invite(p_household_id)` (online) → `{ token, expires_at }` → OS share sheet with `https://healthypaws.io/i/<token>`. No typable code. Open invites sync to the owner only; the owner can revoke them (`revoke_invite`).
 
 ### 10.2 Remove, leave, transfer, delete (privacy M1, B2)
 - **Remove member** (owner only, never self): `remove_member(p_member_id)`; `cannot_remove_self` is not reachable from the UI.

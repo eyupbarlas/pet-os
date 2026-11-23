@@ -368,7 +368,7 @@ PostHog's opt-in rate is itself reported from SQL: the share of users with
   source. **Later:** move to the Send Email Hook (**unverified**) when a third language or
   richer templates are needed.
 - No tracking pixels, and Resend's open/click tracking is off.
-- **Domain:** `no-reply@mail.<domain>`, with SPF, DKIM and DMARC (`p=none`) in Cloudflare DNS
+- **Domain:** `no-reply@mail.healthypaws.io`, with SPF, DKIM and DMARC (`p=none`) in Cloudflare DNS
   and the EU sending region. US storage goes under "before public launch".
 - **Limit:** 100 a day on the free plan is plenty without a public form.
 
@@ -461,7 +461,7 @@ in small print on the card page footer.
 `/en/privacy` and `/pl/prywatnosc` are one plain page each, not the lawyer-final version. They
 are linked from the consent screen, the deletion pages, the invite landing, the app's Settings
 and the TestFlight/Play test listings. Contents:
-1. Who we are, with contact at `privacy@<domain>`.
+1. Who we are, with contact at `privacy@healthypaws.io`.
 2. What data we use and why: account (email, display name), pets and care data, household
    membership and attribution, care-card contents.
 3. **First-party aggregate metrics** from service data, with no consent needed, aggregates
@@ -489,7 +489,7 @@ and the TestFlight/Play test listings. Contents:
 
 `/en/delete-account` and `/pl/usun-konto` are static pages. They explain:
 - **In the app:** Settings → Account → Delete account (3 taps; Apple users re-authenticate).
-- **Without the app:** email `privacy@<domain>` **from the address on your account** with
+- **Without the app:** email `privacy@healthypaws.io` **from the address on your account** with
   the subject "Delete my account". We reply and delete within **30 days**, usually within a
   few days.
 - What is deleted and what stays (same text as the privacy notice, point 7).
@@ -620,7 +620,7 @@ At scale we also add:
 | M5 | **Consent gate** | `useConsent()` → `{ usageStats, crashReports, marketing, decidedAt, policyVersion }`, from the profile (source of truth) and the cache `consent.v1.<user_id>` (only with a session for that user). All default **false**. PostHog is mounted only if `usageStats`; `Sentry.init` only if `crashReports`. `setConsent()` writes the profile and the cache. **Sign-out and deletion:** close the SDKs and clear the cache. After sign-in, the profile wins; with no decision, ask. The screen follows the display-name step. |
 | M6 | **Analytics wrapper** | `track(event, props)` typed from §5.1. Screen events use route names only. Values pass through `scrubSensitive()`. No streak events. |
 | M7 | **Error tracking init** | `@sentry/react-native` + Expo plugin, EU DSN. `Sentry.init({ sendDefaultPii: false, tracesSampleRate: 0, beforeSend: scrubEvent, beforeBreadcrumb: scrubBreadcrumb })` behind M5. No `setUser`. `reportError()` + `ErrorBoundary`. `scrubSensitive()` lives in `packages/domain` with fixtures (§6). |
-| M8 | **Deep links** | Universal and App Links for **`https://<domain>/i/*` only**. Card links (`/c/*`) are **web only**; the owner's "preview" opens the system browser. The Worker hosts AASA and assetlinks; mobile supplies the team ID, bundle ID and cert fingerprints. |
+| M8 | **Deep links** | Universal and App Links for **`https://healthypaws.io/i/*` only**. Card links (`/c/*`) are **web only**; the owner's "preview" opens the system browser. The Worker hosts AASA and assetlinks; mobile supplies the team ID, bundle ID and cert fingerprints. |
 | M9 | **i18n** | Shared `en_US.json` / `pl_PL.json` with `app.*`, `notif.*`, `email.*` and `web.*` namespaces. The Worker and the SMTP-template build script import them at build time. Includes `web.careCard.markedDone`, `web.careCard.marksExplainer` and the public-link warning `app.careCard.publicWarning`. |
 | M10 | **App config** | `rpc('get_app_config')` at start; an update screen below `min_supported_version`. |
 | M11 | **Privacy notice links** | The consent screen, Settings and the deletion-confirmation screen link to `/{en|pl}/privacy`/`prywatnosc` in the app language. Delete-account copy includes "Your ticks stay in the household's history without your name". |
