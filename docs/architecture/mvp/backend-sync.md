@@ -178,7 +178,7 @@ tick(id uuid pk = v5(NS_TICK, task_id|local_date|slot)
      local_date date,           -- household date the tick is FOR
      slot smallint default 0,
      actor_id uuid → auth.users ON DELETE SET NULL,   -- set from the JWT by trigger
-     client_at timestamptz,     -- device time of the tap, clamped to <= now(); shown as "at 07:58"
+     client_at timestamptz,     -- device time of the tap, clamped to <= server now(); decides credit; shown as "at 07:58"
      received_at timestamptz default now(),
      unique (task_id, local_date, slot))
 ```
@@ -191,7 +191,7 @@ are never folded.
 
 | Action | Client (local) | Upload | Server |
 |---|---|---|---|
-| Tick | `INSERT OR IGNORE` with the v5 id. A synced row with the same id may already be local | `upsert(row, { onConflict: 'id', ignoreDuplicates: true })` → `ON CONFLICT DO NOTHING` (needs only `INSERT`) | `BEFORE INSERT` sets `actor_id`, clamps `client_at`, checks the task, pet and household, and checks the window. A row that already exists makes the insert a no-op, so the **first upload keeps the credit** |
+| Tick | `INSERT OR IGNORE` with the v5 id. A synced row with the same id may already be local | `upsert(row, { onConflict: 'id', ignoreDuplicates: true })` → `ON CONFLICT DO NOTHING` (needs only `INSERT`) | `BEFORE INSERT` sets `actor_id`, clamps `client_at`, checks the task, pet and household, and checks the window. If a row with that id already exists, the trigger **keeps it, takes over `actor_id`/`client_at` when the incoming tap is earlier, and returns `NULL`**. The insert is skipped with no error, so the **earliest tap keeps the credit** (§4.3) |
 | Undo | `DELETE` by id. If the tick is **another member's**, the app asks first: "Ana marked this done at 07:58. Mark as not done?" (PO M-2). Undoing your own tick is instant | `delete().eq('id', id)` | RLS `DELETE` for members. `BEFORE DELETE` silently ignores the delete (`RETURN NULL`) unless `local_date >= today_local - 1`. `AFTER DELETE` recomputes the streak if `local_date < today_local` |
 | Re-tick after an undo | `INSERT` with the same id | Queue is `DELETE` then `PUT` | The row is deleted, then inserted again with the new actor |
 
@@ -200,19 +200,37 @@ are never folded.
   offers **today and yesterday**.
 - **Delete window:** `today_local - 1 … today_local`. A delete outside it is ignored silently,
   and the next sync restores the row locally.
-- There is no `UPDATE` grant on `tick`.
+- There is no `UPDATE` grant on `tick`. The credit takeover runs inside the `SECURITY DEFINER`
+  trigger.
 
-### 4.3 Credit and races (ruling 1: whoever syncs first)
+### 4.3 Credit and races (amended 2026-11-23: whoever tapped first)
 
-- **Same task ticked offline by two people.** The first upload creates the row. The second is
-  `DO NOTHING`. After the checkpoint, PowerSync replaces the second phone's local row with the
-  server row, so "Done by You" quietly becomes "Done by Ana". There is no error and no
-  animation (PO R2: any flip is silent).
-- **Undo against tick.** The last upload wins. This is deterministic and explainable at this scale.
-- **Device clock skew** no longer affects state. `client_at` is used only for display.
+Eyup decided on 2026-11-23 that credit goes to whoever **tapped** first. The model stays one row
+per task per day, with undo by `DELETE`.
 
-This ruling overrides the PO's "first tapped" preference (PO R2). It is listed for Eyup as a
-confirmable decision (§14 Q1).
+- **Same task ticked offline by two people.** The first upload creates the row. When the second
+  arrives, `tick_before_insert` takes a per-id advisory lock and finds the existing row:
+  - if the incoming `client_at` is **earlier**, it updates the row's `actor_id` and `client_at` to
+    the incoming values;
+  - either way it returns `NULL`, so the insert is skipped and the upload succeeds with no error.
+
+  After the checkpoint, every phone shows the earliest tapper. A phone may quietly change "Done by
+  You" to "Done by Ana", always towards the earlier tap, with no animation (PO R2).
+- **Concurrent uploads of the same id** are serialised by `pg_advisory_xact_lock(hashtext(id))`,
+  so the second always sees the first row. The `ON CONFLICT DO NOTHING` in the upsert is then only
+  a safety net.
+- **Undo against tick.** The last upload still wins, because a `DELETE` removes the row and any
+  later insert creates it again. Example: Ana ticks offline at 07:58. Bartek ticks at 08:05 and
+  syncs. Bartek then undoes, and the row is deleted. Ana syncs, her insert finds no row, and the
+  tick comes back credited to Ana at 07:58. This is the same behaviour as before and acceptable:
+  someone did tap it.
+- **Streak:** unaffected. Done-ness doesn't change on a credit takeover, so there is no recompute.
+- **Clock.** `client_at := least(client_at, now())` on the server. A tap always happens before its
+  upload, so the server's `now()` is a safe upper bound and needs no tolerance. A phone whose clock
+  is ahead therefore can't claim a future time. **Remaining caveat:** a phone whose clock is
+  **behind** (say 10 minutes slow) can still win the credit over someone who tapped slightly
+  earlier. This is accepted at MVP scale: the credit is cosmetic, and phones normally use network
+  time.
 
 ---
 
@@ -375,10 +393,11 @@ Household: Ana and Bartek, in `Europe/Warsaw`, with dog Burek. Tasks: `breakfast
 
 **B. Both offline, same task (acceptance 3).**
 - At 07:58 Ana ticks `breakfast`. At 08:03 Bartek ticks `breakfast`. Both get the **same** id.
-- Bartek reconnects first, so his row is inserted with `actor_id = Bartek`. Ana's upsert is
-  `DO NOTHING`, with no error.
-- After the checkpoint, Ana's phone shows the server row: "Done by Bartek, 08:03". It shows once,
-  credited to one person, and the change is silent.
+- Bartek reconnects first, so his row is inserted with `actor_id = Bartek`, `client_at = 08:03`.
+- Ana reconnects. Her insert finds the row, and 07:58 is earlier than 08:03, so the trigger sets
+  `actor_id = Ana`, `client_at = 07:58` and skips the insert. There is no error.
+- After the checkpoint, both phones show "Done by Ana, 07:58". It shows once, credited to the person
+  who tapped first. Bartek's phone changes silently.
 
 **C. Undo against tick.** At 07:00 Ana ticks `walk_am`, and it syncs. At 07:30 Bartek is online,
 sees the tick and taps it. He gets a confirm ("Ana marked this done at 07:00. Mark as not
@@ -1147,8 +1166,16 @@ begin
     return null;                                         -- silently ignored
   end if;
   new.actor_id    := (select auth.uid());
-  new.client_at   := least(new.client_at, now());
+  new.client_at   := least(new.client_at, now());       -- a tap precedes its upload: no future claims
   new.received_at := now();
+  -- duplicate tick (same deterministic id): earliest tap keeps the credit (amended 2026-11-23)
+  perform pg_advisory_xact_lock(hashtext(new.id::text));
+  if exists (select 1 from public.tick k where k.id = new.id) then
+    update public.tick k
+       set actor_id = new.actor_id, client_at = new.client_at
+     where k.id = new.id and new.client_at < k.client_at;
+    return null;                                         -- skip the insert; upload succeeds
+  end if;
   return new;
 end $$;
 create trigger tick_before_insert before insert on public.tick
@@ -1566,7 +1593,7 @@ design is kept so it can be added without breaking anything:
 | S1 | **Local schema** | The PowerSync client schema mirrors §11.2 for the tables in §6.1. `household` has no `last_closed_date`. `streak_day` and `invite` are read-only. Arrays and jsonb arrive as JSON text. |
 | S2 | **Ids** | UUID v7 by default. Deterministic ids for the tables in §3, generated from the shared `packages/domain/ids.ts` with the exact key strings `task_id|local_date|slot`, `pet_id|local_date`, `pet_id|kind` and `user_id|task_id`. |
 | S3 | **Upload map and errors** | §6.2, table by table, including the SQLSTATE discard list. Retry 401 after refresh. Add a connector test per table against local Supabase. |
-| S4 | **Ticks** | Local `INSERT OR IGNORE`. Undo is a `DELETE`. Undoing **another member's** tick asks for confirmation first. The UI offers today and yesterday. "Done" means the row exists. "Done by" is `household_member.display_name` for `(household_id, actor_id)`, or "Former member" if `actor_id` is null or has no member row. Credit flips after sync are silent. |
+| S4 | **Ticks** | Local `INSERT OR IGNORE`. Undo is a `DELETE`. Undoing **another member's** tick asks for confirmation first. The UI offers today and yesterday. "Done" means the row exists. "Done by" is `household_member.display_name` for `(household_id, actor_id)`, or "Former member" if `actor_id` is null or has no member row. **A duplicate upload never errors: the server keeps the row and credits the earliest `client_at`**, so after sync the local row may change actor (silently, towards the earlier tap). `client_at` must be the device time of the tap, set when the local row is written, not at upload. |
 | S5 | **Rest days** | The UI offers today only. Setting and clearing a rest day are both queued writes. |
 | S6 | **Household day and streak** | `localDate(now, household.timezone)`. `packages/domain/streak` `provisionalStreak(latestStreakDay, openDays[])` covers every unclosed day: rest bridges, the first day is neutral, and a third miss resets. It must pass `streak-fixtures.json`. `streak_critical` is read-only. |
 | S7 | **Bootstrap** | **Confirmed as mobile C-B3:** one transaction inserts `household` → the creator's `household_member` (`user_id = me`, `display_name`) → `pet` → `task`s. No `RETURNING`. There is no server trigger. The server sets `household.owner_id = me`, so the creator is the owner (the client may send it, but the value is overwritten). |
@@ -1596,12 +1623,11 @@ design is kept so it can be added without breaking anything:
 ## 14. Open questions and risks
 
 **For Eyup (confirmable decisions):**
-1. **Tick credit = whoever syncs first** (ruling 1), not whoever tapped first. In practice the credit
-   can quietly move to the person whose phone found signal first.
-2. **Rest days are today only**, with no monthly limit. A rest day keeps the streak but adds nothing
+1. **Rest days are today only**, with no monthly limit. A rest day keeps the streak but adds nothing
    (ruling 2).
-3. **Pets that came in with a member stay with the household** if that member is later removed
-   (PO Q3).
+
+*Resolved 2026-11-23:* tick credit goes to whoever tapped first (§4.3), and pets belong to the
+household (spec decision 5).
 
 **Open:**
 4. The **week-1 spikes**:
@@ -1657,7 +1683,7 @@ design is kept so it can be added without breaking anything:
 | 1. Vet finder and Info library out | **In** | No backend tables. The Places proxy is platform's. |
 | 7. Invite-only beta | **Open beta** | Budget PowerSync Pro ($49). Bring the DPA work and the automated web deletion forward. Consider CAPTCHA on OTP. |
 | 8. G1 ≥ 40% | **Other number** | Only the threshold applied to `analytics.g1_invites`. |
-| Ruling 1 (tick model) | **Eyup prefers first-tapped credit or an audit trail** | Switch to the rejected event-log option in ADR 0014 (random ids, done/undo events, a fold in TypeScript and SQL). Mobile and platform readers change from "row exists" to "folded state". |
+| Ruling 1 (tick model) | **Eyup wants an undo history / audit trail** | Switch to the rejected event-log option in ADR 0014 (random ids, done/undo events, a fold in TypeScript and SQL). Mobile and platform readers change from "row exists" to "folded state". First-tapped credit no longer needs this (§4.3). |
 
 ---
 
@@ -1665,7 +1691,7 @@ design is kept so it can be added without breaking anything:
 
 | Finding | Source | Fix |
 |---|---|---|
-| Ruling 1 / arch B-1 / PO M-1 | Rulings, arch, PO | Ticks are one row per `(task, local_date, slot)` with a deterministic v5 id and a unique key. Clients insert with `ignoreDuplicates`, so the first upload is credited. `DELETE` is granted with a window guard (today/yesterday). An `AFTER DELETE` recompute runs. The fold and its fixtures are removed (§4, §6.3, §11). ADR 0014 is rewritten, with the event log as the rejected option. Listed for Eyup (§14 Q1). |
+| Ruling 1 / arch B-1 / PO M-1 | Rulings, arch, PO | Ticks are one row per `(task, local_date, slot)` with a deterministic v5 id and a unique key. Clients insert with `ignoreDuplicates`. Credit initially went to the first upload; this was changed on 2026-11-23 to the first tap (§19). `DELETE` is granted with a window guard (today/yesterday). An `AFTER DELETE` recompute runs. The fold and its fixtures are removed (§4, §6.3, §11). ADR 0014 is rewritten, with the event log as the rejected option. Listed for Eyup (§14 Q1). |
 | PO M-2 | PO | Confirmation before undoing another member's tick is written into the contract (§4.2, S4). |
 | Ruling 2 / arch B-4 | Rulings, arch | Rest-day insert and delete are accepted for `today_local` only (trigger). No monthly limit; a rest day bridges without extending. A fixture is added. The phone's provisional streak covers every unclosed day (§5). |
 | Arch B-2 / privacy P4 | Arch, privacy | Added `profiles.consent_crash_reports` (default false; ruling 10). |
@@ -1713,3 +1739,9 @@ design is kept so it can be added without breaking anything:
 | Exactly one owner in the DB | Eyup | NOT NULL; no client grant on `owner_id`; a trigger requires the new owner to be an active member; a trigger blocks the owner's membership from ending without a transfer (`owner_must_transfer`); `ON DELETE RESTRICT` on the auth user (§8.5, §11.3). |
 | Delete the household | Eyup | `delete_household` (owner only) cascades everything, including pets, cards and invites. Other members drop it on the next sync (§8.5). |
 | Tests and contracts | — | RLS test 6 (owner-only). S7/S9 and the RPC table updated. ADR 0019 amended. |
+
+## 19. Revision log (2026-11-23, tick credit)
+
+| Change | Source | Fix |
+|---|---|---|
+| Tick credit goes to whoever **tapped** first, not whoever synced first | Eyup, 2026-11-23 | It stays one row per task per day with undo by `DELETE` (no event log). `tick_before_insert` takes a per-id advisory lock. On a duplicate id it updates `actor_id`/`client_at` if the incoming `client_at` is earlier, then returns `NULL`, so the upload never errors. There is still no client `UPDATE` grant. `client_at` is clamped to the server's `now()`; a slow phone clock remains an accepted caveat. Undo: the last upload wins, as before. Streak recompute is unaffected (§4.2, §4.3, §6.3 B, §11.3, S4, §14, §16; ADR 0014 amended). |

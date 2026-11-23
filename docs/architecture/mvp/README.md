@@ -41,7 +41,7 @@ All 26 ADRs are in [`docs/adr/`](../../adr/), with status `proposed`.
 ## Key design choices
 
 - **Ticks:** one row per task per household day. The row id comes from task + date, so when two
-  people tick the same task offline it collapses into one tick. The first phone to sync gets the
+  people tick the same task offline it collapses into one tick. Whoever tapped first gets the
   credit. An undo deletes the row, and is allowed for today and yesterday only. Undoing someone
   else's tick asks first. (ADR 0004, 0014)
 - **Day boundary:** the household's time zone is stored on the household, and the phone stamps
@@ -113,24 +113,19 @@ The main shared pieces:
 
 The full reviews and the rulings that settled reviewer disagreements are in [reviews/](reviews/).
 
-## Open decisions for Eyup
+## Decisions Eyup made on review (2026-11-23)
 
-These follow the recommended option for now, and each can be reversed cheaply:
+1. **Tick credit goes to whoever tapped first.** We keep one row per task per day; when a later
+   upload of the same tick has an earlier tap time, the server swaps the credit (ADR 0014).
+2. **Rest days are today only**, with no monthly limit.
+3. **Invites are share links only**, with no typable code.
+4. **Pets belong to the household** and stay if the member who brought them is removed.
+5. **Gate metrics come from database totals** with no opt-in; the spec now says so.
+6. **One owner per household** (see Key design choices).
 
-1. **Tick credit goes to whoever syncs first, not whoever tapped first.** The product owner
-   preferred first tap, which needs an event log. We chose the simpler model, so credit can
-   quietly move to the phone that found signal first.
-2. **Rest days can be set for today only**, with no monthly limit. Allowing yesterday would let a
-   miss be turned into a rest day after the fact.
-3. **No typable invite code.** Invites are share links. Beta friction is handled by the invite
-   landing page, which has step-by-step TestFlight and Play instructions, and by recruiting
-   households as pairs.
-4. **Pets brought in by a member stay with the household** if that member is later removed.
-   This fits the owner model: pets belong to the household.
-5. **Spec wording:** add one line to the spec saying the beta's gate metrics come from database
-   totals that need no consent, while PostHog product events need opt-in. The privacy review
-   cleared this.
-6. **Domain name** for the care card, invite and deletion pages.
+## Still open
+
+- **Domain name** for the care card, invite and deletion pages. Eyup is choosing one.
 
 ## Week-one checks (unverified)
 

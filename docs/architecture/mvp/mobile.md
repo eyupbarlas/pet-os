@@ -169,7 +169,7 @@ Sheets use native `formSheet`/`modal` presentations: true modals for VoiceOver/T
 
 | Table | PUT | PATCH | DELETE |
 |---|---|---|---|
-| `tick` | `upsert(row, { onConflict: 'id', ignoreDuplicates: true })` (= `ON CONFLICT DO NOTHING`; first uploader credited) | — | `delete().eq('id')` (undo; server guard ignores deletes outside the open window) |
+| `tick` | `upsert(row, { onConflict: 'id', ignoreDuplicates: true })` (the server's `tick_before_insert` trigger skips the duplicate and keeps the earliest `client_at`, so the first **tapper** is credited; Eyup 2026-11-23) | — | `delete().eq('id')` (undo; server guard ignores deletes outside the open window) |
 | `rest_day` | `upsert(row, { onConflict: 'id', ignoreDuplicates: true })` | — | `delete().eq('id')` (today only) |
 | `pet_place`, `vet_contact`, `reminder_pref`, `notification_settings` | `upsert(row, { onConflict: 'id' })` | `update(changed cols)` | — |
 | `household` | `insert(row)` (no `.select()`, so no `RETURNING`) | `update({ name?, timezone? })` | — |
@@ -200,7 +200,7 @@ Result: no user ever sees an upload error dialog, and offline ticks survive a lo
 ### 3.5 Ticks (ruling 1)
 
 - **One row per task per household day.** Tick = local insert `{ id = uuidv5(task_id|local_date|0), household_id, pet_id, task_id, local_date, slot: 0, actor_id: <me> (optimistic; server overwrites from the JWT), client_at: now }`.
-- **Same task, both offline:** both phones create the same id; the first upload wins (`ON CONFLICT DO NOTHING`), the second phone's row is replaced by the server's on the next checkpoint. One tick, credited to the first uploader, no error. The flip from "Done by You" to "Done by Ana" is **silent** (no animation, toast or announcement).
+- **Same task, both offline:** both phones create the same id; the server keeps one row and credits whoever **tapped first** (earliest `client_at`, capped at server time; backend §4, ADR 0014), and both phones receive that row on the next checkpoint. One tick, no error. `client_at` is the device time of the tap, set when the local row is written, never at upload. The flip from "Done by You" to "Done by Ana" is **silent** (no animation, toast or announcement).
 - **Different tasks, both offline:** different ids, both survive; "Done by …" resolves `actor_id` → `household_member.display_name` (including former members); null or missing → "Former member"; `actor_id = me` → "You".
 - **Undo = local DELETE**, offered for today and yesterday (the server window guard ignores older deletes). **Own tick:** instant undo. **Someone else's tick:** one confirmation, "Ana marked this done at 07:58. Mark as not done?" (PO M-2), to stop double feeding from a stale screen.
 - **Yesterday:** a collapsed "Yesterday" row on Today, shown only while yesterday has open streak-critical tasks (PO S-M1). The server accepts `today-2 … today+1`; the UI offers today and yesterday only.
@@ -435,7 +435,7 @@ Requests to backend that follow from the rulings: `care_card_link.pet_id uuid` (
 | 6. Dog = meals + meds + walks; cat = meals + meds + water | `routineDefaults` flags, dog template walks, progress copy | Change one defaults table + data backfill of `streak_critical`. |
 | 7. Invite-only beta | Profiles, landing page | Open beta → store listings, production privacy labels; deferred deep linking worth adding. |
 | 8. G1 ≥40% invites created in 7 days | Nothing in the app (SQL aggregates) | Thresholds only. |
-| Ruling 1: v5 tick rows, first uploader credited | §3.3, §3.5, ADR 0004, planner "tick exists" | Event log → random ids, undo = insert `action: 'undo'`, fold in `@petos/domain/streak`, planner reads folded state. Contained in `data/mutations` + `streak`. |
+| Ruling 1 + Eyup 2026-11-23: v5 tick rows, first tapper credited | §3.3, §3.5, ADR 0004, planner "tick exists" | Event log → random ids, undo = insert `action: 'undo'`, fold in `@petos/domain/streak`, planner reads folded state. Contained in `data/mutations` + `streak`. |
 | Ruling 2: rest days today only, no limit | Today's rest-day action | A limit adds a counter and "out of rest days" copy. |
 | Ruling 5: one pet per card | Share UI on the pet tab | Multi-pet → pet picker on the share sheet; RPC `pet_ids[]`. |
 | Ruling 6: no typable code | Join entry by link only | Add "Have a code?" field calling `accept_invite` with a code. |
@@ -463,7 +463,7 @@ Requests to backend that follow from the rulings: `care_card_link.pet_id uuid` (
 | Arch M-6 rest day counted as complete; provisional only today | Backend rules via shared `provisionalStreak` over all unclosed days; rest day bridges without adding; today-only rest days (§3.6) |
 | Arch M-7 no display name | `name` step in onboarding and join; `profiles.display_name`, bootstrap row, `accept_invite(p_display_name)` (§4) |
 | Arch M-8..M-13 (SHOULD) | C-B1 rewritten to backend names; task remove = `ends_on`; join without code + queue flush; Apple re-auth at deletion + `functions.invoke('delete-account')`; local tick idempotency check; replace-links sheet; one `@petos/domain` package with module owners (§3.3, §4, §9.5, §10, C-B6) |
-| PO M-1 tick model | Overridden by ruling 1: v5 rows, first uploader credited, silent credit flip (§3.5) |
+| PO M-1 tick model | Ruling 1 kept the v5 row model; Eyup (2026-11-23) chose first-tapper credit, done server-side by a trigger; silent credit flip (§3.5) |
 | PO M-2 undo of someone else's tick | Confirmation "Ana marked this done at 07:58. Mark as not done?" (§3.5) |
 | PO M-3 invited partner sees pet screens | Join path skips pet creation: sign in → name → join sheet → consent → Today (§4.2) |
 | PO M-4 silent leave / pet deletion on join | `preview_invite` + explicit join sheet naming what's left and who stays; pets always come along, never deleted in the join flow (§4.3) |

@@ -93,7 +93,9 @@ Acceptance (must pass before the beta):
       member, or is deleted if they were the last); the web page works without the app.
 - [ ] Psibufet and Booksy links open the partner in the browser/app; nothing is purchased in-app.
 
-What we want to learn (closed beta, ~100 users, consented stats only):
+What we want to learn (closed beta, ~100 users). Gate numbers (G1, G2, G3) are counted as totals
+from our own database, with no tracking on the phone, so they need no opt-in. Product analytics
+(PostHog) and crash reports are sent only after the user opts in:
 - **G1 — is care-tracking a real pain?** Share of households that invite a partner within 7
   days (target: ≥40%); ticks per active pet per day; % of ticks by
   non-creators.
@@ -146,5 +148,17 @@ Product decisions (Eyup, 2026-11-22):
 6. A dog's streak **includes walks** (meals + meds + walks). This changes the canvas rule.
 7. The beta is **invite-only** (TestFlight + Play closed testing).
 8. G1 target: **≥40%** of households invite a partner within 7 days.
+
+Further product decisions (Eyup, 2026-11-23):
+
+9. **Tick credit:** when two people tick the same task offline, the person who **tapped first** is
+   credited, whichever phone syncs first.
+10. **Rest days** can be marked for **today only** (no monthly limit; they keep the streak but add
+    no day).
+11. **Invites are share links only**, with no typable code.
+12. **Pets belong to the household**: pets a member brought in stay if that member is removed.
+13. **Gate metrics** come from database totals without opt-in; PostHog and crash reports need
+    opt-in (see "What we want to learn").
+14. **One owner per household** (see Need 2 and decision 5).
 
 Technical decisions go in `docs/adr/` (architecture work: issue #5).
