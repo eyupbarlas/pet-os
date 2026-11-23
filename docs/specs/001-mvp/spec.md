@@ -1,9 +1,9 @@
 # 001 — Pet OS MVP: shared daily care for dogs and cats
 
-- **Status:** review
+- **Status:** approved
 - **Issue:** #3
 - **Owner:** Product Owner (agent)
-- **Last updated:** 2026-11-07
+- **Last updated:** 2026-11-22
 - **Roadmap phase:** Next (MVP)
 
 > **Scope note vs. roadmap:** the roadmap puts the emergency vet finder and Info library v1 in
@@ -21,7 +21,7 @@ shops. This MVP exists to let ~100 real owners play with the loop and tell us if
 
 ## Who has it
 
-- **Owner** (creates the household) and **partner/family member** (invited, equal rights),
+- **Owner** (creates the household) and **partner/family member** (invited by the owner; edits all pets and care),
   both ticking care daily, often on the move and sometimes offline (walks, lifts, cellars).
 - **Sitter** (neighbour, friend, paid sitter) who needs today's routine without an account.
 - **Pets:** dogs and cats only. A cat's day (meals, fresh water, litter) differs from a dog's
@@ -32,8 +32,11 @@ shops. This MVP exists to let ~100 real owners play with the loop and tell us if
 1. **Pet-first start.** A new user can add their first dog or cat (name, species, optional
    breed, birth date/age, weight) and see a sensible routine *before* creating an account;
    the account step (Apple, Google, email) saves it.
-2. **Household.** An owner can invite a partner by link; both see and edit the same pets,
-   routine and history. Either can remove a member; members can leave.
+2. **Household.** Each household has one **owner** (its admin) and members. The household holds
+   the pets, and every member sees and edits the same pets, routine and history. Only the owner
+   invites people by link, removes members, renames or deletes the household, and hands
+   ownership to another member. Members can leave at any time. If the owner leaves or deletes
+   their account, ownership passes to the longest-standing member.
 3. **Pet profiles.** A household can hold several dogs and cats; the user can switch pets
    from anywhere and stay on the same place in the app.
 4. **Daily routine.** Each pet has a routine started from a species default (dog: meals,
@@ -41,7 +44,8 @@ shops. This MVP exists to let ~100 real owners play with the loop and tell us if
    pause or remove. Tasks can be timed or "any time today", daily or every N days.
 5. **Ticks with attribution.** Anyone in the household can tick a task done (and undo it);
    everyone sees who did it and when ("Done by Partner"). Ticks work offline and sync later.
-6. **Streak.** A day counts when every meal and med is ticked (cat: meals + fresh water).
+6. **Streak.** A day counts when every streak-critical task is ticked: dog = meals + meds + walks;
+   cat = meals + meds + fresh water.
    Two automatic skip days ("paw passes") a month, user-marked rest days, milestones at
    7/14/30/100 days, celebrated playfully; no guilt copy, no first-person pet voice. "Day" is
    the household's local calendar day; household ticks count toward one shared streak per pet.
@@ -70,7 +74,8 @@ Acceptance (must pass before the beta):
       reconnect, both ticks show with the right names and the streak is correct.
 - [ ] Both offline tick the *same* task; after sync it shows once, credited to one person,
       and no one sees an error.
-- [ ] A day with all meals + meds ticked counts; a missed day uses a paw pass automatically
+- [ ] A day with all streak-critical tasks ticked (dog: meals, meds, walks; cat: meals, meds,
+      fresh water) counts; a missed day uses a paw pass automatically
       (max 2/month); the third miss resets the streak with neutral copy.
 - [ ] The day boundary follows the household's local time, including the DST change weekend.
 - [ ] A sitter opens the care card on a phone browser with no account and sees today's
@@ -88,9 +93,11 @@ Acceptance (must pass before the beta):
       member, or is deleted if they were the last); the web page works without the app.
 - [ ] Psibufet and Booksy links open the partner in the browser/app; nothing is purchased in-app.
 
-What we want to learn (closed beta, ~100 users, consented stats only):
+What we want to learn (closed beta, ~100 users). Gate numbers (G1, G2, G3) are counted as totals
+from our own database, with no tracking on the phone, so they need no opt-in. Product analytics
+(PostHog) and crash reports are sent only after the user opts in:
 - **G1 — is care-tracking a real pain?** Share of households that invite a partner within 7
-  days (target to set; *we think* ≥40%); ticks per active pet per day; % of ticks by
+  days (target: ≥40%); ticks per active pet per day; % of ticks by
   non-creators.
 - **G3 inputs — does the loop stick?** D30 retention (gate: ≥25%); % of active pets hitting a
   7-day streak (gate: ≥30%); paw-pass use; reminder opt-in and opt-out rates.
@@ -126,17 +133,32 @@ What we want to learn (closed beta, ~100 users, consented stats only):
 
 ## Open questions
 
-1. Do you agree to move the emergency vet finder and Info library out of the first MVP (to a
-   follow-up release in Next)?
-2. Should sitters be able to tick tasks on the care card (their ticks count toward the
-   streak per the canvas rule), or is read-only enough for the beta?
-3. Should the care card link expire on its own (e.g. after 14 days) or only when turned off?
-4. Do you accept "no pet photos" in the MVP, or is a single profile photo a must for the fun?
-5. Can more than two adults share a household (family of four), or cap it at owner + partner?
-6. Are walks streak-critical for dogs, or only meals + meds as the canvas rule says?
-7. Should the beta be invite-only (codes/TestFlight list) or open to anyone who finds it?
-8. What target do you want for "partner invited within 7 days", so G1 has a pass/fail line?
+None open. Answered by Eyup on 2026-11-22 (see Decisions).
 
 ## Decisions
 
-None yet — ADRs from this spec go in `docs/adr/`.
+Product decisions (Eyup, 2026-11-22):
+
+1. Emergency vet finder and Info library are **out** of the first MVP (follow-up release in Next).
+2. The care card is **read-only**; sitters do not tick tasks.
+3. Care card links **don't expire** on their own; they work until the owner turns them off.
+4. **No pet photos** in the MVP; pets show a name initial or species icon.
+5. A household can have **more than two adults**, soft limit of 6. *Updated 2026-11-23:* one
+   **owner** (admin) plus members, not equal rights (see Need 2). Pets belong to the household.
+6. A dog's streak **includes walks** (meals + meds + walks). This changes the canvas rule.
+7. The beta is **invite-only** (TestFlight + Play closed testing).
+8. G1 target: **≥40%** of households invite a partner within 7 days.
+
+Further product decisions (Eyup, 2026-11-23):
+
+9. **Tick credit:** when two people tick the same task offline, the person who **tapped first** is
+   credited, whichever phone syncs first.
+10. **Rest days** can be marked for **today only** (no monthly limit; they keep the streak but add
+    no day).
+11. **Invites are share links only**, with no typable code.
+12. **Pets belong to the household**: pets a member brought in stay if that member is removed.
+13. **Gate metrics** come from database totals without opt-in; PostHog and crash reports need
+    opt-in (see "What we want to learn").
+14. **One owner per household** (see Need 2 and decision 5).
+
+Technical decisions go in `docs/adr/` (architecture work: issue #5).
