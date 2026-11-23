@@ -30,6 +30,6 @@ Ticks and edits must work offline and sync later (need 5). Two members ticking o
 ## Consequences
 
 - Easier: offline is the default path. Both offline acceptance tests pass with no error UI. Undo is a plain delete.
-- Harder: a per-table connector test against local Supabase is required in CI, because a wrong mapping fails silently. Server schema changes must be additive during the beta. The "Done by" credit can silently flip after sync (first uploader wins); accepted by ruling 1.
+- Harder: a per-table connector test against local Supabase is required in CI, because a wrong mapping fails silently. Server schema changes must be additive during the beta. The "Done by" credit can silently flip after sync, always towards the earlier tap (amended 2026-11-23: first tapper wins, ADR 0014).
 - Next: keep the namespace constants and key format in `@petos/domain/ids`, reviewed by backend.
 - Revisit if Eyup prefers the event log (option B): then ticks use random ids and undo-as-insert, and the fold lives in `@petos/domain/streak`. Only `data/mutations`, the tick queries and the planner's "already done" rule change.
