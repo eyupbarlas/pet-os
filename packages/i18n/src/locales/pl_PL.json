@@ -1,0 +1,33 @@
+{
+  "app": { "name": "HealthyPaws" },
+  "common": { "continue": "Dalej", "cancel": "Anuluj", "save": "Zapisz", "done": "Gotowe" },
+  "welcome": {
+    "title": "Opiekujcie się zwierzakiem razem",
+    "subtitle": "Odhaczaj posiłki, spacery i leki. Podtrzymuj serię.",
+    "start": "Zaczynamy"
+  },
+  "tabs": { "today": "Dziś", "routine": "Rutyna", "health": "Zdrowie", "pet": "Zwierzak", "settings": "Ustawienia" },
+  "today": {
+    "empty": "Na dziś nic nie zaplanowano",
+    "streak_one": "{{count}} dzień serii",
+    "streak_few": "{{count}} dni serii",
+    "streak_many": "{{count}} dni serii",
+    "streak_other": "{{count}} dnia serii",
+    "saved_offline": "Zapisano na telefonie, zsynchronizuje się"
+  },
+  "task": {
+    "dog": {
+      "meal": { "morning": "Śniadanie", "evening": "Kolacja" },
+      "walk": { "morning": "Spacer rano", "evening": "Spacer wieczorem" }
+    },
+    "cat": {
+      "meal": { "morning": "Śniadanie", "evening": "Kolacja" },
+      "water": { "fresh": "Świeża woda" },
+      "litter": { "scoop": "Posprzątaj kuwetę" }
+    }
+  },
+  "diagnostics": {
+    "title": "Kontrole pierwszego tygodnia",
+    "run": "Uruchom kontrole"
+  }
+}

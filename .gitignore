@@ -2,3 +2,8 @@ _agents_workspace/
 .DS_Store
 node_modules/
 .env*
+.expo/
+dist/
+*.tsbuildinfo
+supabase/.temp/
+supabase/.branches/

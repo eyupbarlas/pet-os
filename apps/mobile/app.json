@@ -1,0 +1,48 @@
+{
+  "expo": {
+    "name": "HealthyPaws",
+    "slug": "healthypaws",
+    "scheme": "healthypaws",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "icon": "../../assets/brand/png/ios/icon-1024.png",
+    "plugins": [
+      "expo-router",
+      "expo-localization",
+      "expo-apple-authentication",
+      "@react-native-google-signin/google-signin",
+      ["expo-notifications", { "color": "#FF8A4C" }]
+    ],
+    "ios": {
+      "bundleIdentifier": "io.healthypaws.app",
+      "supportsTablet": false,
+      "usesAppleSignIn": true,
+      "associatedDomains": ["applinks:healthypaws.io"],
+      "icon": {
+        "light": "../../assets/brand/png/ios/icon-1024.png",
+        "dark": "../../assets/brand/png/ios/icon-dark-1024.png",
+        "tinted": "../../assets/brand/png/ios/icon-tinted-1024.png"
+      }
+    },
+    "android": {
+      "package": "io.healthypaws.app",
+      "adaptiveIcon": {
+        "foregroundImage": "../../assets/brand/png/android/adaptive-foreground-1024.png",
+        "monochromeImage": "../../assets/brand/png/android/adaptive-monochrome-1024.png",
+        "backgroundColor": "#FF8A4C"
+      },
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [{ "scheme": "https", "host": "healthypaws.io", "pathPrefix": "/i/" }],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
+    },
+    "web": { "favicon": "../../assets/brand/png/web/favicon-48.png" },
+    "extra": { "eas": {} }
+  }
+}
