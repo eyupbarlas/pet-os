@@ -105,11 +105,21 @@ the MVP does, so they wait for an answer.
   export, dark Today, dark Profile.
 - **Canvas notes** updated: streak rules, sign-in, settings, partners, vet finder, info library.
 
+## Follow-up (23 Nov, later)
+
+- **C6 tab bar, done:** Today, Today (cat), Health, Health (cat), Profile, Profile (cat), Food,
+  Food (cat), Grooming and Settings now show Today · Routine · Health · [Pet] · Settings. Food and
+  Grooming highlight the Pet tab and open from Profile's "usual places"; Grooming's back button
+  returns to the pet. The gear on Profile and the back button on Settings are gone, since
+  Settings is a tab.
+- **B8 Routine list, done:** new artboard N7 lists every task in Today's order with its time,
+  repeat, streak flame, "my reminder" bell and "Paused" label. "+" opens a sheet (meal, walk,
+  medicine, something else) that leads to the task editor (N6). "Reorder" switches each row to
+  up and down buttons that announce the new position, so reordering works without dragging.
+  N6's back button now returns to the Routine list.
+
 ## Still open on the canvas
 
-- **C6 tab bar:** screens still show Today · Health · Food · Pet. The architecture has a Routine
-  tab and puts Food and Grooming under Pet. Not redrawn yet.
-- **B8 Routine list:** the task editor (N6) exists; the Routine tab list (add, reorder) is not drawn.
 - **B4 member view, B13 nudge offer, B11 "You've been signed out":** described in notes on N4,
   States and the platform design, not drawn as separate screens.
 - Polish copy is not on the canvas; the JSON files will hold it.
