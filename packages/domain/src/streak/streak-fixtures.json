@@ -1,0 +1,46 @@
+[
+  {
+    "name": "complete days add one, a miss uses a paw pass",
+    "start": { "streak": 0, "passesUsedInMonth": 0, "month": "2027-03" },
+    "days": [
+      { "date": "2027-03-26", "dueCount": 3, "tickedCount": 3, "hasRestDay": false, "isFirstDayOfPet": false },
+      { "date": "2027-03-27", "dueCount": 3, "tickedCount": 2, "hasRestDay": false, "isFirstDayOfPet": false },
+      { "date": "2027-03-28", "dueCount": 3, "tickedCount": 3, "hasRestDay": false, "isFirstDayOfPet": false }
+    ],
+    "expect": [
+      { "outcome": "complete", "streak": 1, "passesUsedInMonth": 0 },
+      { "outcome": "paw_pass", "streak": 1, "passesUsedInMonth": 1 },
+      { "outcome": "complete", "streak": 2, "passesUsedInMonth": 1 }
+    ]
+  },
+  {
+    "name": "third miss in a month resets the streak, the next month resets passes",
+    "start": { "streak": 10, "passesUsedInMonth": 0, "month": "2027-10" },
+    "days": [
+      { "date": "2027-10-29", "dueCount": 2, "tickedCount": 0, "hasRestDay": false, "isFirstDayOfPet": false },
+      { "date": "2027-10-30", "dueCount": 2, "tickedCount": 0, "hasRestDay": false, "isFirstDayOfPet": false },
+      { "date": "2027-10-31", "dueCount": 2, "tickedCount": 0, "hasRestDay": false, "isFirstDayOfPet": false },
+      { "date": "2027-11-01", "dueCount": 2, "tickedCount": 2, "hasRestDay": false, "isFirstDayOfPet": false }
+    ],
+    "expect": [
+      { "outcome": "paw_pass", "streak": 10, "passesUsedInMonth": 1 },
+      { "outcome": "paw_pass", "streak": 10, "passesUsedInMonth": 2 },
+      { "outcome": "missed", "streak": 0, "passesUsedInMonth": 2 },
+      { "outcome": "complete", "streak": 1, "passesUsedInMonth": 0 }
+    ]
+  },
+  {
+    "name": "rest day bridges without adding; first day and empty due set are neutral",
+    "start": { "streak": 5, "passesUsedInMonth": 0, "month": "2027-03" },
+    "days": [
+      { "date": "2027-03-10", "dueCount": 3, "tickedCount": 1, "hasRestDay": true, "isFirstDayOfPet": false },
+      { "date": "2027-03-11", "dueCount": 0, "tickedCount": 0, "hasRestDay": false, "isFirstDayOfPet": false },
+      { "date": "2027-03-12", "dueCount": 3, "tickedCount": 0, "hasRestDay": false, "isFirstDayOfPet": true }
+    ],
+    "expect": [
+      { "outcome": "rest", "streak": 5, "passesUsedInMonth": 0 },
+      { "outcome": "neutral", "streak": 5, "passesUsedInMonth": 0 },
+      { "outcome": "neutral", "streak": 5, "passesUsedInMonth": 0 }
+    ]
+  }
+]

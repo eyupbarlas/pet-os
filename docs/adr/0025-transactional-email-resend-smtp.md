@@ -1,6 +1,6 @@
 # 0025 — Resend for transactional email: custom SMTP for auth, API for the deletion receipt
 
-- **Status:** proposed
+- **Status:** accepted (Eyup, 2026-11-23)
 - **Date:** 2026-11-22 (revised after reviews 03 and rulings 04)
 - **Deciders:** Eyup
 - **Related:** spec `docs/specs/001-mvp/spec.md` (needs 1, 11, 12), issue #5, ADR 0024, design §7

@@ -1,0 +1,14 @@
+{
+  "name": "healthypaws",
+  "private": true,
+  "packageManager": "pnpm@10.28.0",
+  "scripts": {
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "i18n:check": "pnpm --filter @petos/i18n check",
+    "mobile": "pnpm --filter @petos/mobile start"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.2"
+  }
+}

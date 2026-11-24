@@ -1,6 +1,6 @@
 # 0007 — Semantic design tokens + StyleSheet; no styling framework; light only
 
-- **Status:** proposed
+- **Status:** accepted (Eyup, 2026-11-23)
 - **Date:** 2026-11-22 (reviewed in phase 3; no change)
 - **Deciders:** Eyup
 - **Related:** `pet-os-context` ("Architecture and specs must not depend on visual style … Theming is a token layer on top"); spec `docs/specs/001-mvp/spec.md` need 11 (light theme), accessibility acceptance (contrast AA, Reduce Motion); issue #5; draft §8

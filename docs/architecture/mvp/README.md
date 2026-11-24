@@ -1,6 +1,6 @@
 # Pet OS MVP architecture
 
-- **Status:** proposed (waiting on Eyup's review)
+- **Status:** accepted (Eyup, 2026-11-23)
 - **Spec:** [`docs/specs/001-mvp/spec.md`](../../specs/001-mvp/spec.md) (approved 2026-11-22)
 - **Issue:** #5 (spec issue #3)
 - **Research:** [`docs/research/stack-choice.md`](../../research/stack-choice.md)
@@ -36,7 +36,7 @@ developer fee and a domain. Everything else is on a free plan.
 | Data model, sync, auth, household lifecycle, SQL sketch | [backend-sync.md](backend-sync.md) | 0010–0019 |
 | Reminders, consent, analytics, crash reports, email, web hosting, ops, cost | [platform-services.md](platform-services.md) | 0020–0026 |
 
-All 26 ADRs are in [`docs/adr/`](../../adr/), with status `proposed`.
+All 26 ADRs are in [`docs/adr/`](../../adr/), all accepted by Eyup on 2026-11-23.
 
 ## Key design choices
 

@@ -1,6 +1,6 @@
 # 0004 — PowerSync's local SQLite is the client's source of truth; deterministic ids for one-per-key rows
 
-- **Status:** proposed
+- **Status:** accepted (Eyup, 2026-11-23)
 - **Date:** 2026-11-22 (revised after phase-3 reviews); amended 2026-11-23 (owner role)
 - **Deciders:** Eyup
 - **Related:** spec `docs/specs/001-mvp/spec.md` needs 2, 5, 6 and both offline acceptance tests; issue #5; backend ADR 0012 (upload path and error classes), backend ADR 0014 (tick model, rewritten per orchestrator ruling 1); `docs/architecture/mvp/reviews/rulings.md` rulings 1, 13, 14; draft `docs/architecture/mvp/mobile.md` §3, §5

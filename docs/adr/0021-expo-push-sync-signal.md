@@ -1,6 +1,6 @@
 # 0021 — Expo Push "sync now" signal: a planned follow-up, not in the first beta build
 
-- **Status:** proposed
+- **Status:** accepted (Eyup, 2026-11-23)
 - **Date:** 2026-11-22 (revised after reviews 03 and rulings 04, ruling 8)
 - **Deciders:** Eyup
 - **Related:** spec `docs/specs/001-mvp/spec.md` (needs 2, 5, 7), issue #5, ADR 0020, design §3.6
