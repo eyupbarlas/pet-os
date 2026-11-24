@@ -18,7 +18,7 @@ export async function signInWithApple() {
 }
 
 export async function signInWithGoogle() {
-  GoogleSignin.configure({ webClientId: config.googleWebClientId });
+  GoogleSignin.configure({ webClientId: config.googleWebClientId, iosClientId: config.googleIosClientId || undefined });
   await GoogleSignin.hasPlayServices();
   const res = await GoogleSignin.signIn();
   const idToken = res.data?.idToken;
