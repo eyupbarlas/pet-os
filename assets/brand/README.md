@@ -1,4 +1,4 @@
-# HealthyPaws logo · "Tick paw"
+# HealthyPaw logo · "Tick paw"
 
 A paw with the daily tick in its pad. It points at the app's core loop: tick off care and keep the streak.
 It is drawn in the app palette and keeps away from green and paw-in-heart marks so it stays distinct from the US pet insurer "Healthy Paws".
