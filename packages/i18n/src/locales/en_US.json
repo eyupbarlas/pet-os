@@ -1,33 +1,72 @@
 {
-  "app": { "name": "HealthyPaws" },
-  "common": { "continue": "Continue", "cancel": "Cancel", "save": "Save", "done": "Done" },
+  "app": {
+    "name": "HealthyPaws"
+  },
+  "common": {
+    "continue": "Continue",
+    "cancel": "Cancel",
+    "save": "Save",
+    "done": "Done"
+  },
   "welcome": {
     "title": "Care for your pet, together",
     "subtitle": "Tick off meals, walks and meds. Keep the streak going.",
     "start": "Get started"
   },
-  "tabs": { "today": "Today", "routine": "Routine", "health": "Health", "pet": "Pet", "settings": "Settings" },
+  "tabs": {
+    "today": "Today",
+    "routine": "Routine",
+    "health": "Health",
+    "pet": "Pet",
+    "settings": "Settings"
+  },
   "today": {
     "empty": "Nothing planned for today",
     "streak_one": "{{count}} day streak",
     "streak_few": "{{count}} day streak",
     "streak_many": "{{count}} day streak",
     "streak_other": "{{count}} day streak",
-    "saved_offline": "Saved on this phone, will sync"
+    "saved_offline": "Saved on this phone, will sync",
+    "syncConnected": "Synced",
+    "syncOffline": "Saved on this phone, will sync"
   },
   "task": {
     "dog": {
-      "meal": { "morning": "Breakfast", "evening": "Dinner" },
-      "walk": { "morning": "Morning walk", "evening": "Evening walk" }
+      "meal": {
+        "morning": "Breakfast",
+        "evening": "Dinner"
+      },
+      "walk": {
+        "morning": "Morning walk",
+        "evening": "Evening walk"
+      }
     },
     "cat": {
-      "meal": { "morning": "Breakfast", "evening": "Dinner" },
-      "water": { "fresh": "Fresh water" },
-      "litter": { "scoop": "Scoop the litter" }
+      "meal": {
+        "morning": "Breakfast",
+        "evening": "Dinner"
+      },
+      "water": {
+        "fresh": "Fresh water"
+      },
+      "litter": {
+        "scoop": "Scoop the litter"
+      }
     }
   },
   "diagnostics": {
     "title": "Week-one checks",
     "run": "Run checks"
+  },
+  "auth": {
+    "title": "Sign in",
+    "email": "Email",
+    "sendCode": "Send me a code",
+    "codeSent": "We sent a code to your email.",
+    "code": "Code",
+    "verify": "Sign in",
+    "google": "Continue with Google",
+    "apple": "Continue with Apple",
+    "signOut": "Sign out"
   }
 }
