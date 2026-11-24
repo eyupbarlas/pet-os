@@ -1,4 +1,4 @@
-# HealthyPaws (Pet OS)
+# HealthyPaw (Pet OS)
 
 A pet care app for households: tick off meals, walks and meds together, keep a streak, share a
 care card with a sitter. iOS and Android first, Poland first, Polish and English. This is an MVP

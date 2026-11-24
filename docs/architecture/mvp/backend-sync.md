@@ -524,7 +524,7 @@ member row exists.
 ### 8.2 Invite and join (online; ruling 6 and 11, PO B-M2/M-4)
 
 1. **Create (owner only).** `rpc('create_invite', { p_household_id })` returns `{ token, expires_at }`. The app
-   shares `https://healthypaws.io/i/<token>`. The token is 256-bit, valid for 7 days, single use and
+   shares `https://healthypaw.app/i/<token>`. The token is 256-bit, valid for 7 days, single use and
    revocable (`revoke_invite`). There is no typable code (ruling 6). Install friction is handled by
    the beta landing page (platform).
 2. **Open.** The link opens the app through an app link (`/i/*` only, ruling 3), or the landing page

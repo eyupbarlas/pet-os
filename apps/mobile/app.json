@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "HealthyPaws",
-    "slug": "healthypaws",
-    "scheme": "healthypaws",
+    "name": "HealthyPaw",
+    "slug": "healthypaw",
+    "scheme": "healthypaw",
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
@@ -16,10 +16,10 @@
       ["expo-notifications", { "color": "#FF8A4C" }]
     ],
     "ios": {
-      "bundleIdentifier": "io.healthypaws.app",
+      "bundleIdentifier": "app.healthypaw",
       "supportsTablet": false,
       "usesAppleSignIn": true,
-      "associatedDomains": ["applinks:healthypaws.io"],
+      "associatedDomains": ["applinks:healthypaw.app"],
       "icon": {
         "light": "../../assets/brand/png/ios/icon-1024.png",
         "dark": "../../assets/brand/png/ios/icon-dark-1024.png",
@@ -27,7 +27,7 @@
       }
     },
     "android": {
-      "package": "io.healthypaws.app",
+      "package": "app.healthypaw",
       "adaptiveIcon": {
         "foregroundImage": "../../assets/brand/png/android/adaptive-foreground-1024.png",
         "monochromeImage": "../../assets/brand/png/android/adaptive-monochrome-1024.png",
@@ -37,7 +37,7 @@
         {
           "action": "VIEW",
           "autoVerify": true,
-          "data": [{ "scheme": "https", "host": "healthypaws.io", "pathPrefix": "/i/" }],
+          "data": [{ "scheme": "https", "host": "healthypaw.app", "pathPrefix": "/i/" }],
           "category": ["BROWSABLE", "DEFAULT"]
         }
       ]

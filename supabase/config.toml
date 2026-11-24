@@ -1,5 +1,5 @@
 # Supabase local development config. Hosted project: Frankfurt (eu-central-1), ADR 0010.
-project_id = "healthypaws"
+project_id = "healthypaw"
 
 [api]
 enabled = true
@@ -13,8 +13,8 @@ port = 54322
 major_version = 17
 
 [auth]
-site_url = "https://healthypaws.io"
-additional_redirect_urls = ["healthypaws://auth/callback"]
+site_url = "https://healthypaw.app"
+additional_redirect_urls = ["healthypaw://auth/callback"]
 enable_signup = true
 enable_anonymous_sign_ins = false      # ADR 0017: no anonymous sign-in
 

@@ -28,3 +28,4 @@ or off-topic requests directly and runs the full team only when the work warrant
 | 2026-11-07 | Initial setup: 6 agents, 7 skills, spec process, Context7 | All | Start architecture work for iOS + Android |
 | 2026-11-07 | MVP stage (≤100 users), EU as preference not filter, i18n via en_US.json / pl_PL.json | `pet-os-context`, architects, reviewers, tools | Eyup: build an MVP to play with; translations in-house |
 | 2026-11-23 | MVP codebase scaffolded (pnpm monorepo, Expo app, Supabase migrations, PowerSync config); 26 ADRs accepted by Eyup | `apps/`, `packages/`, `supabase/`, `powersync/`, `docs/adr/` | Eyup approved the build and accepted the ADRs |
+| 2026-11-24 | App renamed HealthyPaws to HealthyPaw; domain healthypaw.app; bundle ID and package `app.healthypaw` | `apps/mobile`, `assets/brand`, `supabase/`, docs | Eyup: the App Store refused the old name and it avoids trademark trouble |

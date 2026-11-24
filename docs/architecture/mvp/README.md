@@ -125,8 +125,8 @@ The full reviews and the rulings that settled reviewer disagreements are in [rev
 
 ## Still open
 
-- **Domain:** Eyup chose `healthypaws.io` (2026-11-23) for the care card, invite, deletion and
-  privacy pages and the auth email sender. Bought on Cloudflare Registrar (2026-11-23).
+- **Domain:** Eyup chose `healthypaw.app` (2026-11-24) for the care card, invite, deletion and
+  privacy pages and the auth email sender. Renamed on 2026-11-24: the app is now HealthyPaw and the domain is `healthypaw.app` (the earlier `healthypaws.io` is dropped).
 
 ## Week-one checks (unverified)
 
