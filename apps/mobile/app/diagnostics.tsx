@@ -45,7 +45,7 @@ export default function Diagnostics() {
   const [lines, setLines] = useState<Line[]>([]);
   const [busy, setBusy] = useState(false);
   return (
-    <Screen style={{ gap: 12 }}>
+    <Screen bottomInset style={{ gap: 12 }}>
       <Text accessibilityRole="header" style={{ fontSize: 22, fontWeight: '700' }}>{t('diagnostics.title')}</Text>
       <Button label={busy ? '...' : t('diagnostics.run')} onPress={async () => { setBusy(true); setLines(await runChecks()); setBusy(false); }} />
       <ScrollView>

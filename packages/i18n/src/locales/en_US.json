@@ -6,7 +6,10 @@
     "continue": "Continue",
     "cancel": "Cancel",
     "save": "Save",
-    "done": "Done"
+    "done": "Done",
+    "back": "Back",
+    "next": "Next",
+    "loading": "Getting your household…"
   },
   "welcome": {
     "title": "Care for your pet, together",
@@ -28,7 +31,30 @@
     "streak_other": "{{count}} day streak",
     "saved_offline": "Saved on this phone, will sync",
     "syncConnected": "Synced",
-    "syncOffline": "Saved on this phone, will sync"
+    "syncOffline": "Saved on this phone, will sync",
+    "title": "{{name}}'s day",
+    "todo": "Still to do",
+    "done": "Done",
+    "progress_one": "{{done}} of {{count}} done for the streak",
+    "progress_other": "{{done}} of {{count}} done for the streak",
+    "streakSafe": "Streak safe for today",
+    "streakLeft_one": "{{count}} more to keep the streak",
+    "streakLeft_other": "{{count}} more to keep the streak",
+    "noStreakTasks": "No streak tasks today",
+    "allDone": "Everything's done for today. Go enjoy a nap together.",
+    "doneBy": "Done by {{name}}",
+    "you": "You",
+    "formerMember": "Former member",
+    "markDone": "Mark {{title}} as done",
+    "markNotDone": "Mark {{title}} as not done",
+    "undoOtherTitle": "Mark as not done?",
+    "undoOtherBody": "{{name}} marked this done at {{time}}.",
+    "undoOtherConfirm": "Mark as not done",
+    "switchPet": "Switch pet",
+    "progress_few": "{{done}} of {{count}} done for the streak",
+    "progress_many": "{{done}} of {{count}} done for the streak",
+    "streakLeft_few": "{{count}} more to keep the streak",
+    "streakLeft_many": "{{count}} more to keep the streak"
   },
   "task": {
     "dog": {
@@ -68,5 +94,34 @@
     "google": "Continue with Google",
     "apple": "Continue with Apple",
     "signOut": "Sign out"
+  },
+  "onboarding": {
+    "step": "Step {{n}} of 3",
+    "householdTitle": "Let's set up your home",
+    "yourName": "Your name",
+    "yourNameHint": "This is how the household sees who ticked what.",
+    "householdName": "Household name",
+    "householdDefault": "{{name}}'s home",
+    "petTitle": "Who are you caring for?",
+    "petName": "Pet's name",
+    "species": "Species",
+    "dog": "Dog",
+    "cat": "Cat",
+    "routineTitle": "What does {{name}}'s day look like?",
+    "routineSubtitle": "We'll turn this into a daily checklist. Change it anytime.",
+    "anyTime": "Any time today",
+    "countsForStreak": "Counts for the streak",
+    "medsQuestion": "Daily meds?",
+    "no": "No",
+    "yes": "Yes",
+    "medName": "Medicine name",
+    "medNamePlaceholder": "e.g. Eye drops",
+    "morning": "Morning",
+    "evening": "Evening",
+    "save": "Save {{name}}'s day",
+    "saveFailed": "Couldn't save. Please try again."
+  },
+  "settings": {
+    "signedInAs": "Signed in as {{email}}"
   }
 }

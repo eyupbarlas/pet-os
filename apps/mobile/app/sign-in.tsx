@@ -28,7 +28,7 @@ export default function SignIn() {
   const input = { borderWidth: 1, borderColor: th.border, color: th.text, borderRadius: 14, padding: 14, fontSize: 16, backgroundColor: th.surface } as const;
 
   return (
-    <Screen style={{ gap: 12, justifyContent: 'center' }}>
+    <Screen bottomInset style={{ gap: 12, justifyContent: 'center' }}>
       <Text accessibilityRole="header" style={{ fontSize: 24, fontWeight: '700' }}>{t('auth.title')}</Text>
       <TextInput value={email} onChangeText={setEmail} placeholder={t('auth.email')} placeholderTextColor={th.textMuted}
         keyboardType="email-address" autoCapitalize="none" autoComplete="email" style={input} accessibilityLabel={t('auth.email')} />
