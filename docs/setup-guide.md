@@ -46,8 +46,8 @@ Your project: `xdpgtfsvbblbntzjyeje`.
    then **Sign In / Providers**: "Allow anonymous sign-ins" must be off.
 5. **Authentication**, then **URL Configuration**: Site URL `https://healthypaw.app`, and add the
    redirect URL `healthypaw://auth/callback`.
-6. **Authentication**, then **Email Templates**: in the "Confirm signup" and "Magic Link"
-   templates, put `{{ .Token }}` in the body so people get a 6-digit code instead of a link.
+6. **Authentication**, then **Email Templates**: the "Confirm signup" and "Magic Link"
+   templates must show `{{ .Token }}` (the code) and no link; ready-made ones are in Part 5.
    Supabase's built-in email sender is limited to a few emails an hour. That's fine for
    testing yourself; Resend comes later (ADR 0025).
 7. **Project Settings**, then **API Keys**: copy the **Project URL** and the **publishable** key
@@ -149,11 +149,32 @@ plan (3,000 emails a month, 100 a day) is plenty for 100 users.
    | Password | the `re_...` API key |
 
    Save. (Port 465 is the SSL one; if Supabase complains, try 587.)
-5. Still in **Authentication**, **Emails**, **Templates**: make sure the **Magic Link** and
-   **Confirm signup** templates contain `{{ .Token }}`, because the app asks for the 6-digit
-   code, not a link. Also set the subject to something readable, such as "Your HealthyPaw
-   code". Later we can put EN/PL text in the template.
-6. Optional: raise the email rate limit under **Authentication**, **Rate Limits**; the default
+5. **Code length.** In **Authentication**, **Sign In / Providers**, **Email**, set
+   **Email OTP Length** to **6** and save. New hosted projects default to 8 digits, which is
+   why your first email showed 8. The app accepts up to 8 digits, so either works, but the
+   design says 6.
+6. **Templates.** In **Authentication**, **Emails**, **Templates**, open **Confirm signup**
+   and **Magic Link** (new people get "Confirm signup", returning people get "Magic Link").
+   The app asks for a code, not a link, so use the code-only templates below. Delete
+   everything in the body and paste these. The `{{ .Token }}` placeholder is the code.
+
+   Subject for both: `Your HealthyPaw code: {{ .Token }}`
+
+   ```html
+   <div style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#FDFCFF;padding:32px 16px;">
+     <div style="max-width:420px;margin:0 auto;background:#ffffff;border-radius:16px;padding:32px;text-align:center;">
+       <div style="font-size:24px;font-weight:800;color:#1C1738;">Healthy<span style="color:#FF8A4C;">Paw</span></div>
+       <p style="font-size:16px;color:#1C1738;margin:24px 0 8px;">Your sign-in code is</p>
+       <p style="font-size:36px;font-weight:800;letter-spacing:6px;color:#C2410C;margin:0 0 16px;">{{ .Token }}</p>
+       <p style="font-size:14px;color:#5B5775;margin:0;">Type it into the HealthyPaw app. It works for one hour.<br>If you didn't ask for it, you can ignore this email.</p>
+     </div>
+   </div>
+   ```
+
+   Don't add `{{ .ConfirmationURL }}`: the link opens the site, not the app, so it goes
+   nowhere (this is what happened with the first test email). Typing the code confirms the
+   email by itself.
+7. Optional: raise the email rate limit under **Authentication**, **Rate Limits**; the default
    is low once custom SMTP is on.
 
 Test: in the app, sign in with an email address that is not yours and check the code arrives
