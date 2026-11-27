@@ -20,6 +20,12 @@ importers:
       '@expo/vector-icons':
         specifier: ^15.1.1
         version: 15.1.1(expo-font@58.0.12(expo@58.1.0)(react-native@0.88.1(@babel/core@7.29.13)(@react-native/metro-config@0.88.1(@babel/core@7.29.13))(@types/react@19.3.0)(react@19.3.0))(react@19.3.0))(react-native@0.88.1(@babel/core@7.29.13)(@react-native/metro-config@0.88.1(@babel/core@7.29.13))(@types/react@19.3.0)(react@19.3.0))(react@19.3.0)
+      '@formatjs/intl-getcanonicallocales':
+        specifier: ^3.4.2
+        version: 3.4.2
+      '@formatjs/intl-pluralrules':
+        specifier: ^7.1.2
+        version: 7.1.2
       '@op-engineering/op-sqlite':
         specifier: ^19.0.5
         version: 19.0.5(react-native@0.88.1(@babel/core@7.29.13)(@react-native/metro-config@0.88.1(@babel/core@7.29.13))(@types/react@19.3.0)(react@19.3.0))(react@19.3.0)
@@ -915,6 +921,21 @@ packages:
   '@expo/xcpretty@4.4.7':
     resolution: {integrity: sha512-EbxYllZ7/ozONVZd425cm4XnolfW+AmSFT5aP7Jdno6oc3WrYQcHz2CO20z/2rwWwYgztmV2PXvYH+BQ8YFjqg==}
     hasBin: true
+
+  '@formatjs/bigdecimal@0.2.12':
+    resolution: {integrity: sha512-KSFLj/KBZfanDW3BpMytGLrZFB8gGvxbtJkB2NBkw3SW0nR8Yno2Ea2s62vCFaJ4GHfGMWDoXfBxzpfKwOfgAg==}
+
+  '@formatjs/fast-memoize@3.1.8':
+    resolution: {integrity: sha512-Y9YFFfeBDkAWmLWD3LVNHbHlyELsP2lYRNoY6+QhtPh1/ujCiX5QYBzAqe0cWdkCxKVezHLt0qjWz1veEUV7UA==}
+
+  '@formatjs/intl-getcanonicallocales@3.4.2':
+    resolution: {integrity: sha512-b0Ywtqh1DS5bc3NXqm2VMbtDN9mYQPVVIEDPkxIi8SlV5eq7NkE0ZET0IHDWgl1lLh74hjGJv8iPy7D/y/SNNA==}
+
+  '@formatjs/intl-localematcher@0.10.3':
+    resolution: {integrity: sha512-qHGNMjYbewa1uteT7VFPot2+q9glcBMVRQhmQNXgNYia35Arzln7vJ4Zyj6ktm6POzRc3SW/CTAhhSnMQSFvJg==}
+
+  '@formatjs/intl-pluralrules@7.1.2':
+    resolution: {integrity: sha512-ZsLZvUmRH1eZWqiYEj5/e7rtlIBUddSo4u73itGeetxFqbxYCE7nOBcHMH49HgGfmoMSXHW5NWQ7eGfFoM2hhg==}
 
   '@isaacs/ttlcache@1.4.1':
     resolution: {integrity: sha512-RQgQ4uQ+pLbqXfOmieB91ejmLwvSgv9nLx6sT6sD83s7umBypgg+OIBOBbEUiJXrfpnp9j0mRhYYdzp9uqq3lA==}
@@ -4288,6 +4309,21 @@ snapshots:
       '@babel/code-frame': 7.29.7
       chalk: 4.1.2
       js-yaml: 4.3.2
+
+  '@formatjs/bigdecimal@0.2.12': {}
+
+  '@formatjs/fast-memoize@3.1.8': {}
+
+  '@formatjs/intl-getcanonicallocales@3.4.2': {}
+
+  '@formatjs/intl-localematcher@0.10.3':
+    dependencies:
+      '@formatjs/fast-memoize': 3.1.8
+
+  '@formatjs/intl-pluralrules@7.1.2':
+    dependencies:
+      '@formatjs/bigdecimal': 0.2.12
+      '@formatjs/intl-localematcher': 0.10.3
 
   '@isaacs/ttlcache@1.4.1': {}
 

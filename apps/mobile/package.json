@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^15.1.1",
+    "@formatjs/intl-getcanonicallocales": "^3.4.2",
+    "@formatjs/intl-pluralrules": "^7.1.2",
     "@op-engineering/op-sqlite": "^19.0.5",
     "@petos/domain": "workspace:*",
     "@petos/i18n": "workspace:*",
