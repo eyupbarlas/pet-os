@@ -1,3 +1,10 @@
 packages:
   - apps/*
   - packages/*
+
+# expo-application 58.1.1 and 58.1.2 dropped `apple.modules` from expo-module.config.json, so iOS
+# autolinking never registers ApplicationModule and the app crashes at start with
+# "Cannot find native module 'ExpoApplication'". 58.1.0 is the last good version.
+# Remove this override once a fixed 58.1.x is released.
+overrides:
+  expo-application: 58.1.0
