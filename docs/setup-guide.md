@@ -76,6 +76,15 @@ PowerSync reads changes from your Supabase database and sends them to the phones
    marked the column lists and the `invite` filter as unverified.
 6. Copy the instance URL into `apps/mobile/.env.local` as `EXPO_PUBLIC_POWERSYNC_URL`.
 
+**If Today stays empty and the log says `PSYNC_S2105 Unexpected "aud" claim value:
+"authenticated"`:** PowerSync accepts the Supabase sign-in token but refuses its audience.
+Supabase tokens always carry the audience `authenticated`. In the instance's **Client Auth**
+settings, make sure **Use Supabase Auth** is on and saved (if you use the Supabase JWT secret
+rather than the built-in option, it must be the project's current secret), and add
+`authenticated` to **JWT Audience** (also called "Additional JWT audiences"). Then press
+**Save and deploy** (the change only applies after a deploy), close and reopen the app, and
+sign in again. A fresh token is issued on sign-in.
+
 ## Part 3. Google sign-in
 
 You need a Google account and a Google Cloud project. It's free.
