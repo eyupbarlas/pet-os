@@ -120,6 +120,46 @@ Enrolment can take a day or two. The two pages you found are general; you only n
 Apple sign-in only works on a real iPhone build, not in Expo Go or most simulators' App Store
 accounts. Android has no Apple button in the app.
 
+## Part 5. Custom SMTP for sign-in emails (Resend)
+
+Supabase's built-in mail sender is for testing only: it sends to team members only and is
+limited to a few emails an hour. Email-code sign-in needs your own SMTP before anyone outside
+your Supabase team can log in. We use **Resend** (ADR 0025) on `healthypaw.app`; the free
+plan (3,000 emails a month, 100 a day) is plenty for 100 users.
+
+1. Sign up at <https://resend.com>. When it asks for a region for the domain, pick **EU
+   (Ireland)** to keep mail in the EU.
+2. **Domains**, **Add Domain**: `healthypaw.app`. Resend shows three or four DNS records
+   (SPF, DKIM, and optionally DMARC/MX). Add them where `healthypaw.app` is managed (the
+   registrar's DNS page, or Cloudflare if the domain's nameservers are there; in Cloudflare set
+   each record to **DNS only**, grey cloud). Click **Verify**; it usually passes in a few
+   minutes, sometimes up to an hour.
+3. **API Keys**, **Create API Key**, permission **Sending access**, domain `healthypaw.app`.
+   Copy the key (starts with `re_`); Resend shows it once. Never put it in the repo.
+4. In Supabase, **Authentication**, **Emails** (older dashboards: **Settings**, **SMTP
+   Settings**), **SMTP Settings**, switch on **Enable custom SMTP** and fill in:
+
+   | Field | Value |
+   |-------|-------|
+   | Sender email | `no-reply@healthypaw.app` |
+   | Sender name | `HealthyPaw` |
+   | Host | `smtp.resend.com` |
+   | Port | `465` |
+   | Username | `resend` |
+   | Password | the `re_...` API key |
+
+   Save. (Port 465 is the SSL one; if Supabase complains, try 587.)
+5. Still in **Authentication**, **Emails**, **Templates**: make sure the **Magic Link** and
+   **Confirm signup** templates contain `{{ .Token }}`, because the app asks for the 6-digit
+   code, not a link. Also set the subject to something readable, such as "Your HealthyPaw
+   code". Later we can put EN/PL text in the template.
+6. Optional: raise the email rate limit under **Authentication**, **Rate Limits**; the default
+   is low once custom SMTP is on.
+
+Test: in the app, sign in with an email address that is not yours and check the code arrives
+(look in spam the first time). If it doesn't, open Resend, **Emails**, to see whether it was
+sent, bounced or never reached Resend, and send me the error text.
+
 ## What I can't do from here
 
 My session can't reach your Supabase project or the PowerSync dashboard (the Supabase connector
