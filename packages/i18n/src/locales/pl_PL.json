@@ -6,7 +6,10 @@
     "continue": "Dalej",
     "cancel": "Anuluj",
     "save": "Zapisz",
-    "done": "Gotowe"
+    "done": "Gotowe",
+    "back": "Wstecz",
+    "next": "Dalej",
+    "loading": "Pobieramy dane domu…"
   },
   "welcome": {
     "title": "Opiekujcie się zwierzakiem razem",
@@ -28,7 +31,30 @@
     "streak_other": "{{count}} dnia serii",
     "saved_offline": "Zapisano na telefonie, zsynchronizuje się",
     "syncConnected": "Zsynchronizowano",
-    "syncOffline": "Zapisano na telefonie, zsynchronizuje się"
+    "syncOffline": "Zapisano na telefonie, zsynchronizuje się",
+    "title": "Dzień: {{name}}",
+    "todo": "Do zrobienia",
+    "done": "Zrobione",
+    "progress_one": "{{done}} z {{count}} zrobione dla serii",
+    "progress_few": "{{done}} z {{count}} zrobione dla serii",
+    "progress_many": "{{done}} z {{count}} zrobionych dla serii",
+    "progress_other": "{{done}} z {{count}} zrobione dla serii",
+    "streakSafe": "Seria na dziś bezpieczna",
+    "streakLeft_one": "Jeszcze {{count}}, by utrzymać serię",
+    "streakLeft_few": "Jeszcze {{count}}, by utrzymać serię",
+    "streakLeft_many": "Jeszcze {{count}}, by utrzymać serię",
+    "streakLeft_other": "Jeszcze {{count}}, by utrzymać serię",
+    "noStreakTasks": "Dziś nic nie liczy się do serii",
+    "allDone": "Wszystko na dziś zrobione. Czas na wspólną drzemkę.",
+    "doneBy": "Zrobione: {{name}}",
+    "you": "Ty",
+    "formerMember": "Były domownik",
+    "markDone": "Oznacz „{{title}}” jako zrobione",
+    "markNotDone": "Oznacz „{{title}}” jako niezrobione",
+    "undoOtherTitle": "Oznaczyć jako niezrobione?",
+    "undoOtherBody": "{{name}} oznaczył(a) to jako zrobione o {{time}}.",
+    "undoOtherConfirm": "Oznacz jako niezrobione",
+    "switchPet": "Zmień zwierzaka"
   },
   "task": {
     "dog": {
@@ -68,5 +94,34 @@
     "google": "Kontynuuj z Google",
     "apple": "Kontynuuj z Apple",
     "signOut": "Wyloguj"
+  },
+  "onboarding": {
+    "step": "Krok {{n}} z 3",
+    "householdTitle": "Urządźmy wasz dom",
+    "yourName": "Twoje imię",
+    "yourNameHint": "Po nim domownicy zobaczą, kto co odhaczył.",
+    "householdName": "Nazwa domu",
+    "householdDefault": "Dom: {{name}}",
+    "petTitle": "Kim się opiekujesz?",
+    "petName": "Imię zwierzaka",
+    "species": "Gatunek",
+    "dog": "Pies",
+    "cat": "Kot",
+    "routineTitle": "Jak wygląda dzień: {{name}}?",
+    "routineSubtitle": "Zrobimy z tego codzienną listę. Zmienisz ją w każdej chwili.",
+    "anyTime": "Dowolna pora dnia",
+    "countsForStreak": "Liczy się do serii",
+    "medsQuestion": "Codzienne leki?",
+    "no": "Nie",
+    "yes": "Tak",
+    "medName": "Nazwa leku",
+    "medNamePlaceholder": "np. Krople do oczu",
+    "morning": "Rano",
+    "evening": "Wieczorem",
+    "save": "Zapisz dzień: {{name}}",
+    "saveFailed": "Nie udało się zapisać. Spróbuj ponownie."
+  },
+  "settings": {
+    "signedInAs": "Zalogowano jako {{email}}"
   }
 }

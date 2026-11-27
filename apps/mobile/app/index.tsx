@@ -10,7 +10,7 @@ export default function Welcome() {
   const { session, loading } = useAuth();
   if (!loading && session) return <Redirect href="/(tabs)/today" />;
   return (
-    <Screen style={{ justifyContent: 'center', gap: 16 }}>
+    <Screen bottomInset style={{ justifyContent: 'center', gap: 16 }}>
       <Image source={require('../assets/lockup.png')} resizeMode="contain" style={{ height: 120, width: '100%' }} accessibilityLabel={t('app.name')} />
       <View style={{ gap: 8 }}>
         <Text accessibilityRole="header" style={{ fontSize: 26, fontWeight: '700' }}>{t('welcome.title')}</Text>
