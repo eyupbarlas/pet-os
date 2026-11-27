@@ -66,8 +66,9 @@ export function OnboardingScreen() {
         med: hasMed && medName.trim() ? { name: medName.trim().slice(0, 60), time_of_day: medTime } : null,
       });
       // The new member row makes `membership` non-null, which redirects to Today.
-    } catch {
-      setError(t('onboarding.saveFailed'));
+    } catch (e) {
+      console.warn('[onboarding] save failed:', e);
+      setError(__DEV__ ? `${t('onboarding.saveFailed')} (${String((e as Error)?.message ?? e)})` : t('onboarding.saveFailed'));
       setSaving(false);
     }
   };
