@@ -12,7 +12,7 @@
       "expo-router",
       "expo-localization",
       "expo-apple-authentication",
-      ["@react-native-google-signin/google-signin", { "iosUrlScheme": "com.googleusercontent.apps.267200428391-lusqbg04vi232tv2ahkk66hpt5knvndj" }],
+      ["@react-native-google-signin/google-signin", { "iosUrlScheme": "com.googleusercontent.apps.550718186991-tjef8h72vabfsq5ci6vvnkjqd7bggki0" }],
       ["expo-notifications", { "color": "#FF8A4C" }]
     ],
     "ios": {
