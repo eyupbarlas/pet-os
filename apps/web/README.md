@@ -9,3 +9,4 @@ Plain static HTML built by `build.mjs` (no dependencies), served by a small Clou
 - Deploy: `pnpm --filter @petos/web ship` (not `deploy`: pnpm has its own command with that name) (needs `wrangler login`). The Worker name in `wrangler.jsonc` (`young-cell-8196`) matches the one already attached to healthypaw.app.
 - Pages: `/en/`, `/en/privacy`, `/en/terms`, `/en/contact`, `/en/delete-account`; `/pl/`, `/pl/prywatnosc`, `/pl/regulamin`, `/pl/kontakt`, `/pl/usun-konto`; `/i/<token>` invite landing; `/` redirects by Accept-Language.
 - Screenshots come from the App Store creative set (design canvas). Swap in real captures from `app-store/source/` before launch.
+- Deploy from GitHub: Actions > "Deploy web" > Run workflow on `main`. Add the repo secrets `CLOUDFLARE_API_TOKEN` (Cloudflare template "Edit Cloudflare Workers") and `CLOUDFLARE_ACCOUNT_ID` first.
