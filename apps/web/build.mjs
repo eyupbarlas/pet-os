@@ -42,12 +42,23 @@ const icons = {
 };
 const icon = (name, cls = 'icon') => `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">${icons[name]}</svg>`;
 
+// Official store badges (unaltered, from Apple and Google). Apple's black badge sits on light grounds and the
+// white one on dark grounds; Google's full-colour badge works on both. Before a store URL exists we show our
+// own "Coming soon" label instead, because the badges may only point at a live listing.
 function storeButtons(t, variant = '') {
-  const btn = (url, ic, pre, name) =>
-    url
-      ? `<a class="store ${variant}" href="${esc(url)}" rel="noopener">${icon(ic)}<span><small>${esc(pre)}</small>${esc(name)}</span></a>`
-      : `<span class="store is-soon ${variant}" aria-label="${esc(name)}: ${esc(t.ui.comingSoon)}">${icon(ic)}<span><small>${esc(t.ui.comingSoon)}</small>${esc(name)}</span></span>`;
-  return `<div class="stores">${btn(site.appStoreUrl, 'apple', t.ui.downloadOn, t.ui.appStore)}${btn(site.playStoreUrl, 'play', t.ui.getItOn, t.ui.googlePlay)}</div>`;
+  const lang = t.lang;
+  const apple = (url) => {
+    const base = `/img/badges/app-store-${lang}`;
+    const img = variant === 'on-dark'
+      ? `<img src="${base}-white.svg" alt="${esc(t.ui.downloadOn)} ${esc(t.ui.appStore)}" width="150" height="50">`
+      : `<picture><source srcset="${base}-white.svg" media="(prefers-color-scheme: dark)"><img src="${base}-black.svg" alt="${esc(t.ui.downloadOn)} ${esc(t.ui.appStore)}" width="150" height="50"></picture>`;
+    return `<a class="badge" href="${esc(url)}" rel="noopener">${img}</a>`;
+  };
+  const google = (url) =>
+    `<a class="badge" href="${esc(url)}" rel="noopener"><img src="/img/badges/google-play-${lang}.svg" alt="${esc(t.ui.getItOn)} ${esc(t.ui.googlePlay)}" width="169" height="50"></a>`;
+  const soon = (ic, name) =>
+    `<span class="store is-soon ${variant}" aria-label="${esc(name)}: ${esc(t.ui.comingSoon)}">${icon(ic)}<span><small>${esc(t.ui.comingSoon)}</small>${esc(name)}</span></span>`;
+  return `<div class="stores">${site.appStoreUrl ? apple(site.appStoreUrl) : soon('apple', t.ui.appStore)}${site.playStoreUrl ? google(site.playStoreUrl) : soon('play', t.ui.googlePlay)}</div>`;
 }
 
 const logo = (t) =>
@@ -60,7 +71,7 @@ function header(t, page) {
   return `<a class="skip" href="#main">${esc(t.ui.skip)}</a>
 <header class="site-header"><div class="wrap bar">
   ${logo(t)}
-  <nav class="nav" aria-label="Main">
+  <nav class="nav" aria-label="${esc(t.ui.menu)}">
     <a href="${h}#features">${esc(n.features)}</a>
     <a href="${h}#how">${esc(n.how)}</a>
     <a href="${h}#faq">${esc(n.faq)}</a>
@@ -69,6 +80,16 @@ function header(t, page) {
   <div class="bar-end">
     <a class="lang" href="${o.paths[page]}" hreflang="${o.lang}" lang="${o.lang}" title="${esc(t.ui.switchLabel)}">${esc(o.lang.toUpperCase())}</a>
     <a class="btn btn-sm" href="${h}#download">${esc(t.ui.getApp)}</a>
+    <details class="menu">
+      <summary aria-label="${esc(t.ui.menu)}"><span class="burger" aria-hidden="true"></span></summary>
+      <nav class="menu-panel" aria-label="${esc(t.ui.menu)}">
+        <a href="${h}#features">${esc(n.features)}</a>
+        <a href="${h}#how">${esc(n.how)}</a>
+        <a href="${h}#faq">${esc(n.faq)}</a>
+        <a href="${t.paths.contact}">${esc(n.contact)}</a>
+        <a class="btn" href="${h}#download">${esc(t.ui.getApp)}</a>
+      </nav>
+    </details>
   </div>
 </div></header>`;
 }
@@ -194,7 +215,7 @@ function home(t) {
 
 <section id="download" class="download"><div class="wrap download-grid">
   <div>
-    <h2>${esc(h.downloadTitle)}</h2>
+    <h2>${esc(site.appStoreUrl && site.playStoreUrl ? h.downloadTitleLive : h.downloadTitle)}</h2>
     <p>${esc(h.downloadBody)}</p>
     ${storeButtons(t, 'on-dark')}
     <p><a class="btn btn-light" href="mailto:${site.supportEmail}?subject=${encodeURIComponent(h.betaSubject)}">${icon('mail')}${esc(h.betaCta)}</a></p>

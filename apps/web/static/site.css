@@ -52,7 +52,7 @@ p { margin: 0 0 1em; }
 .nav a { color: var(--text); text-decoration: none; font-weight: 700; padding: 8px 12px; border-radius: 10px; }
 .nav a:hover { background: var(--surface); }
 .bar-end { display: flex; align-items: center; gap: 10px; }
-.lang { font-weight: 800; font-size: .85rem; letter-spacing: .04em; color: var(--text); text-decoration: none; border: 2px solid var(--border); border-radius: 10px; padding: 5px 10px; }
+.lang { display: inline-grid; place-items: center; min-width: 44px; min-height: 44px; font-weight: 800; font-size: .85rem; letter-spacing: .04em; color: var(--text); text-decoration: none; border: 2px solid var(--border); border-radius: 10px; padding: 5px 10px; }
 .lang:hover { border-color: var(--orange); }
 
 /* Buttons */
@@ -67,6 +67,11 @@ p { margin: 0 0 1em; }
 .store .icon { width: 28px; height: 28px; }
 .store span { display: flex; flex-direction: column; line-height: 1.15; font: 700 1.2rem var(--display); }
 .store small { font: 600 .72rem var(--body); opacity: .85; }
+/* Official badges: never recolour, crop or restyle them. Clear space around each is a quarter of its height. */
+.badge { display: inline-block; line-height: 0; margin: 6px; border-radius: 8px; }
+.badge img { height: 50px; width: auto; }
+.badge:hover { transform: translateY(-2px); }
+.stores:has(.badge) { margin-left: -6px; }
 a.store:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
 .store.is-soon { background: transparent; color: var(--text); border: 2px dashed var(--muted); cursor: default; }
 .store.is-soon.on-dark { color: #fff; border-color: rgba(255, 255, 255, .55); }
@@ -136,12 +141,13 @@ a.store:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
 
 /* FAQ */
 .faq { padding: 88px 0; }
-details { border: 2px solid var(--border); border-radius: 16px; padding: 0 20px; margin-bottom: 12px; background: var(--bg); }
-summary { cursor: pointer; font: 600 1.15rem var(--display); padding: 18px 0; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
-summary::-webkit-details-marker { display: none; }
-summary::after { content: "+"; font-size: 1.5rem; line-height: 1; color: var(--accent); transition: transform .2s; }
-details[open] summary::after { transform: rotate(45deg); }
-details p { color: var(--muted); }
+.faq details { border: 2px solid var(--border); border-radius: 16px; padding: 0 20px; margin-bottom: 12px; background: var(--bg); }
+details > summary { cursor: pointer; }
+.faq summary { font: 600 1.15rem var(--display); padding: 18px 0; list-style: none; display: flex; justify-content: space-between; gap: 16px; min-height: 48px; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; font-size: 1.5rem; line-height: 1; color: var(--accent); transition: transform .2s; }
+details[open] > summary::after { transform: rotate(45deg); }
+.faq details p { color: var(--muted); }
 
 /* Documents */
 .doc { padding: 56px 0 88px; }
@@ -173,9 +179,28 @@ details p { color: var(--muted); }
 .site-footer nav a:hover { color: var(--accent); text-decoration: underline; }
 .copy { margin: 40px 0 0; color: var(--muted); font-size: .9rem; }
 
+/* Phone menu: a <details>, so it works without JavaScript. Hidden on desktop. */
+.menu { display: none; position: relative; }
+.menu summary { list-style: none; cursor: pointer; display: grid; place-items: center; width: 48px; height: 48px; border: 2px solid var(--border); border-radius: 12px; }
+.menu summary::-webkit-details-marker { display: none; }
+.menu[open] summary { border-color: var(--orange); }
+.burger, .burger::before, .burger::after { display: block; width: 20px; height: 2.5px; border-radius: 2px; background: var(--text); content: ""; transition: transform .2s; }
+.burger { position: relative; }
+.burger::before { position: absolute; top: -7px; }
+.burger::after { position: absolute; top: 7px; }
+.menu[open] .burger { background: transparent; }
+.menu[open] .burger::before { transform: translateY(7px) rotate(45deg); }
+.menu[open] .burger::after { transform: translateY(-7px) rotate(-45deg); }
+.menu-panel { position: fixed; left: 0; right: 0; top: calc(68px + env(safe-area-inset-top, 0px)); padding: 12px max(16px, env(safe-area-inset-left, 0px)) 24px; background: var(--bg); border-bottom: 1px solid var(--border); box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 4px; max-height: calc(100dvh - 68px); overflow-y: auto; }
+.menu-panel a:not(.btn) { color: var(--text); text-decoration: none; font: 600 1.3rem var(--display); padding: 14px 8px; min-height: 48px; border-radius: 12px; }
+.menu-panel a:not(.btn):hover, .menu-panel a:not(.btn):focus-visible { background: var(--surface); }
+.menu-panel .btn { margin-top: 12px; }
+
 @media (max-width: 900px) {
   .nav { display: none; }
-  .bar-end { margin-left: auto; }
+  .menu { display: block; }
+  .bar { gap: 12px; }
+  .bar-end { margin-left: auto; gap: 8px; }
   .hero { padding-top: 32px; }
   .hero-grid, .feature, .download-grid { grid-template-columns: 1fr; gap: 32px; }
   .feature.flip .feature-copy { order: 0; }
@@ -193,9 +218,10 @@ details p { color: var(--muted); }
   .features, .how, .faq { padding-block: 56px; }
   .feature { margin-bottom: 56px; }
 }
-@media (max-width: 480px) {
-  .btn-sm { display: none; }
-  .chip-done { left: -4px; }
+@media (max-width: 560px) {
+  .bar-end .btn-sm { display: none; }
+  .wordmark { height: 22px; }
+  .chip-done { display: none; }
   .chip-streak { right: -4px; }
 }
 @media (prefers-reduced-motion: reduce) {
