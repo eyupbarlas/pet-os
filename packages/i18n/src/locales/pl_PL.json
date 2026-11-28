@@ -1,6 +1,24 @@
 {
   "app": {
-    "name": "HealthyPaw"
+    "name": "HealthyPaw",
+    "error": {
+      "invite_not_found": "Ten link z zaproszeniem nie działa. Poproś o nowy.",
+      "invite_revoked": "Ten link z zaproszeniem został wyłączony. Poproś o nowy.",
+      "invite_used": "Ten link z zaproszeniem został już użyty. Poproś o nowy.",
+      "invite_expired": "Ten link z zaproszeniem wygasł. Poproś o nowy.",
+      "household_full": "Ten dom ma już 6 osób.",
+      "already_member": "Już jesteś w tym domu.",
+      "confirm_leave_required": "Potwierdź, że opuszczasz obecny dom.",
+      "not_owner": "Tylko właściciel domu może to zrobić.",
+      "not_a_member": "Nie należysz już do tego domu.",
+      "member_not_found": "Tej osoby nie ma już w domu.",
+      "cannot_remove_self": "Nie możesz usunąć siebie. Użyj opcji Opuść dom.",
+      "owner_must_be_member": "Nowy właściciel musi należeć do domu.",
+      "owner_must_transfer": "Najpierw ustaw kogoś innego jako właściciela.",
+      "not_authenticated": "Zaloguj się ponownie.",
+      "offline": "To wymaga internetu. Spróbuj ponownie, gdy będziesz online.",
+      "unknown": "Coś poszło nie tak. Spróbuj ponownie."
+    }
   },
   "common": {
     "continue": "Dalej",
@@ -163,7 +181,9 @@
     "deleteBody": "To usunie {{pets}} i całą historię dla wszystkich ({{members}}). Nie da się tego cofnąć.",
     "deleteConfirm": "Usuń dla wszystkich",
     "ownerOnly": "Tylko właściciel ({{name}}) może zapraszać i usuwać osoby.",
-    "noPets": "brak zwierząt"
+    "noPets": "brak zwierząt",
+    "inviteShare": "Utwórz link i wyślij",
+    "inviteSheetBody": "Utworzymy link jednorazowy, ważny 7 dni. Każdy, kto go ma, może dołączyć, więc wyślij go tylko właściwej osobie."
   },
   "join": {
     "title": "Dołącz do domu",
@@ -184,22 +204,10 @@
     "alreadyMember": "Już jesteś w tym domu.",
     "ok": "OK"
   },
-  "error": {
-    "invite_not_found": "Ten link z zaproszeniem nie działa. Poproś o nowy.",
-    "invite_revoked": "Ten link z zaproszeniem został wyłączony. Poproś o nowy.",
-    "invite_used": "Ten link z zaproszeniem został już użyty. Poproś o nowy.",
-    "invite_expired": "Ten link z zaproszeniem wygasł. Poproś o nowy.",
-    "household_full": "Ten dom ma już 6 osób.",
-    "already_member": "Już jesteś w tym domu.",
-    "confirm_leave_required": "Potwierdź, że opuszczasz obecny dom.",
-    "not_owner": "Tylko właściciel domu może to zrobić.",
-    "not_a_member": "Nie należysz już do tego domu.",
-    "member_not_found": "Tej osoby nie ma już w domu.",
-    "cannot_remove_self": "Nie możesz usunąć siebie. Użyj opcji Opuść dom.",
-    "owner_must_be_member": "Nowy właściciel musi należeć do domu.",
-    "owner_must_transfer": "Najpierw ustaw kogoś innego jako właściciela.",
-    "not_authenticated": "Zaloguj się ponownie.",
-    "offline": "To wymaga internetu. Spróbuj ponownie, gdy będziesz online.",
-    "unknown": "Coś poszło nie tak. Spróbuj ponownie."
+  "noHousehold": {
+    "title": "Nie należysz do żadnego domu",
+    "body": "Wyszedłeś(-łaś), zostałeś(-łaś) usunięty(-a) albo dom został usunięty. Możesz założyć nowy lub otworzyć link z zaproszeniem.",
+    "create": "Załóż dom",
+    "joinHint": "Aby dołączyć, otwórz link z zaproszeniem, który dostałeś(-aś)."
   }
 }

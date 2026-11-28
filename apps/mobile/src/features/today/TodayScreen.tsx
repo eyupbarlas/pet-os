@@ -15,9 +15,9 @@ import { parseTimestamp } from '../../data/queries/time';
 import { deviceLocale, useT } from '../../i18n';
 import { Button, Screen, Text } from '../../ui/primitives';
 import { useTheme } from '../../ui/theme';
-import { useCurrentPet, useCurrentPetStore } from '../pets/currentPet';
-import { kindIcon } from './kindIcon';
-import { useHouseholdToday } from './useHouseholdToday';
+import { useCurrentPet, useCurrentPetStore } from '../../data/currentPet';
+import { kindIcon } from '../../ui/kindIcon';
+import { useHouseholdToday } from '../../data/queries/useHouseholdToday';
 
 const bcp47 = deviceLocale === 'pl_PL' ? 'pl-PL' : 'en-US';
 
@@ -193,7 +193,7 @@ export function TodayScreen({ membership }: { membership: Membership }) {
           <View style={{ backgroundColor: th.bg, borderRadius: radius.lg, padding: 18, gap: 10 }}>
             <Text style={{ fontWeight: '800', fontSize: 17 }}>{t('today.inviteTitle')}</Text>
             <Text muted>{t('today.inviteBody')}</Text>
-            <Button secondary label={t('today.inviteCta')} onPress={() => router.push('/household')} />
+            <Button secondary label={t('today.inviteCta')} onPress={() => router.push('/invite')} />
           </View>
         ) : null}
       </ScrollView>

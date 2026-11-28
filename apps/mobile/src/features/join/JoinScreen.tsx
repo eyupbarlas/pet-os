@@ -5,15 +5,16 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import { Redirect, useRouter } from 'expo-router';
-import { radius, spacing } from '@petos/tokens';
+import { spacing } from '@petos/tokens';
 import { useAuth } from '../../data/auth/AuthProvider';
 import { suggestedName } from '../../data/auth/suggestedName';
 import { useMembership, useMyDisplayName } from '../../data/queries';
-import { acceptInvite, previewInvite, RpcError, type InvitePreview } from '../../data/rpc/household';
+import { acceptInvite, previewInvite, type InvitePreview, type RpcError } from '../../data/rpc/household';
+import { useAsyncAction } from '../../data/rpc/useAsyncAction';
 import { useT } from '../../i18n';
-import { Button, Field, Screen, Text } from '../../ui/primitives';
+import { Button, Card, Field, Screen, Text } from '../../ui/primitives';
 import { useTheme } from '../../ui/theme';
-import { useCurrentPetStore } from '../pets/currentPet';
+import { useCurrentPetStore } from '../../data/currentPet';
 import { usePendingInvite } from './pendingInvite';
 
 const list = (xs: string[] | undefined) => (xs ?? []).filter(Boolean).join(', ');
@@ -29,9 +30,10 @@ export function JoinScreen() {
   const savedName = useMyDisplayName(userId);
 
   const [preview, setPreview] = useState<InvitePreview | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [previewError, setPreviewError] = useState<string | null>(null);
   const [name, setName] = useState('');
-  const [joining, setJoining] = useState(false);
+  const { busy: joining, error: joinError, run } = useAsyncAction();
+  const error = joinError ?? previewError;
   const [joinedId, setJoinedId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -41,10 +43,10 @@ export function JoinScreen() {
   useEffect(() => {
     if (!token || !session) return;
     let live = true;
-    setError(null);
+    setPreviewError(null);
     previewInvite(token)
       .then((p) => { if (live) setPreview(p); })
-      .catch((e) => { if (live) setError((e as RpcError).code ?? 'unknown'); });
+      .catch((e) => { if (live) setPreviewError((e as RpcError).code ?? 'unknown'); });
     return () => { live = false; };
   }, [token, session]);
 
@@ -58,23 +60,16 @@ export function JoinScreen() {
   }, [arrived, clear]);
 
   if (!loading && !session) return <Redirect href="/" />;
-  if (arrived) return <Redirect href="/(tabs)/today" />;
+  if (arrived) return <Redirect href="/today" />;
   if (loaded && !token && !joinedId) return <Redirect href="/" />;
 
   const leave = () => { clear(); router.replace('/'); };
 
   const join = async () => {
     if (!token || !preview) return;
-    setJoining(true);
-    setError(null);
-    try {
-      const outcome = preview.my_current?.outcome;
-      const res = await acceptInvite(token, name.trim().slice(0, 60), outcome === 'leave_pets_stay');
-      setJoinedId(res.household_id);
-    } catch (e) {
-      setError((e as RpcError).code ?? 'unknown');
-      setJoining(false);
-    }
+    const outcome = preview.my_current?.outcome;
+    const res = await run('join', () => acceptInvite(token, name.trim().slice(0, 60), outcome === 'leave_pets_stay'));
+    if (res) setJoinedId(res.household_id);
   };
 
   const status = preview?.status;
@@ -91,7 +86,7 @@ export function JoinScreen() {
       </View>
     );
   } else if (blocked || (error && !preview)) {
-    const key = blocked ? (status === 'already_member' ? 'join.alreadyMember' : `error.${status}`) : `error.${error}`;
+    const key = blocked ? (status === 'already_member' ? 'join.alreadyMember' : `app.error.${status}`) : `app.error.${error}`;
     body = (
       <View style={{ gap: 16 }}>
         <Text accessibilityRole="alert">{t(key)}</Text>
@@ -103,13 +98,13 @@ export function JoinScreen() {
   } else {
     body = (
       <View style={{ gap: 20 }}>
-        <View style={{ backgroundColor: th.bg, borderRadius: radius.lg, padding: spacing.md, gap: 8 }}>
+        <Card style={{ gap: 8 }}>
           <Text style={{ fontSize: 20, fontWeight: '800' }}>
             {preview.inviter_name ? t('join.invitedBy', { name: preview.inviter_name, household }) : t('join.invited', { household })}
           </Text>
           {preview.member_names?.length ? <Text muted>{t('join.members', { names: list(preview.member_names) })}</Text> : null}
           {preview.pet_names?.length ? <Text muted>{t('join.pets', { names: list(preview.pet_names) })}</Text> : null}
-        </View>
+        </Card>
         {preview.full ? (
           <>
             <Text accessibilityRole="alert">{t('join.full')}</Text>
@@ -129,9 +124,9 @@ export function JoinScreen() {
                 {mine.new_owner_name ? <Text muted>{t('join.newOwner', { name: mine.new_owner_name, current: mine.household_name ?? '' })}</Text> : null}
               </View>
             ) : null}
-            {error ? <Text accessibilityRole="alert" style={{ color: th.accent }}>{t(`error.${error}`)}</Text> : null}
-            <Button label={joining ? t('join.joining') : t('join.join', { household })} disabled={joining || !name.trim()} onPress={join} />
-            <Button secondary label={t('join.notNow')} disabled={joining} onPress={leave} />
+            {error ? <Text accessibilityRole="alert" style={{ color: th.accent }}>{t(`app.error.${error}`)}</Text> : null}
+            <Button label={joining ? t('join.joining') : t('join.join', { household })} disabled={!!joining || !name.trim()} onPress={join} />
+            <Button secondary label={t('join.notNow')} disabled={!!joining} onPress={leave} />
           </>
         )}
       </View>

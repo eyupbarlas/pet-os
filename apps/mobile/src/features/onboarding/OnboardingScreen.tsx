@@ -15,8 +15,8 @@ import { useMembership } from '../../data/queries';
 import { useT } from '../../i18n';
 import { Button, Chip, Field, Screen, Text } from '../../ui/primitives';
 import { useTheme } from '../../ui/theme';
-import { useHouseholdToday } from '../today/useHouseholdToday';
-import { kindIcon } from '../today/kindIcon';
+import { useHouseholdToday } from '../../data/queries/useHouseholdToday';
+import { kindIcon } from '../../ui/kindIcon';
 
 const deviceZone = () => getCalendars()[0]?.timeZone ?? 'Europe/Warsaw';
 
@@ -44,7 +44,7 @@ export function OnboardingScreen() {
 
   if (!session) return <Redirect href="/" />;
   // Already in a household (second phone, or just created): straight to Today.
-  if (membership) return <Redirect href="/(tabs)/today" />;
+  if (membership) return <Redirect href="/today" />;
 
   const name = displayName.trim();
   const pet = petName.trim();

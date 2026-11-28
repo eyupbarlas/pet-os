@@ -12,13 +12,12 @@ import { useAuth } from '../../data/auth/AuthProvider';
 import { renameHousehold } from '../../data/mutations';
 import { useHousehold, useMembers, useMembership, useOpenInvites, usePets, type InviteRow, type MemberRow } from '../../data/queries';
 import { parseTimestamp } from '../../data/queries/time';
-import {
-  createInvite, deleteHousehold, leaveHousehold, removeMember, revokeInvite, transferOwnership, type RpcError,
-} from '../../data/rpc/household';
+import { deleteHousehold, leaveHousehold, removeMember, revokeInvite, transferOwnership } from '../../data/rpc/household';
 import { deviceLocale, useT } from '../../i18n';
-import { Button, Field, Screen, Text } from '../../ui/primitives';
+import { Button, Card, Field, Screen, SmallButton, Text } from '../../ui/primitives';
 import { useTheme } from '../../ui/theme';
-import { inviteUrl } from './inviteLink';
+import { inviteUrl } from '../../services/links/invite';
+import { useAsyncAction } from '../../data/rpc/useAsyncAction';
 
 const MAX_MEMBERS = 6;
 const bcp47 = deviceLocale === 'pl_PL' ? 'pl-PL' : 'en-US';
@@ -44,37 +43,17 @@ export function HouseholdScreen() {
   const others = members.filter((m) => m.user_id !== me);
 
   const [name, setName] = useState<string | null>(null);
-  const [busy, setBusy] = useState<string | null>(null);
+  const { busy, error, run } = useAsyncAction();
   const [notice, setNotice] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   const shownName = name ?? household?.name ?? '';
   const householdName = household?.name ?? '';
   const memberName = (m: MemberRow | undefined) => m?.display_name || t('today.formerMember');
 
-  const run = async (key: string, fn: () => Promise<unknown>) => {
-    setBusy(key);
-    setError(null);
-    setNotice(null);
-    try {
-      return await fn();
-    } catch (e) {
-      setError((e as RpcError).code ?? 'unknown');
-      return undefined;
-    } finally {
-      setBusy(null);
-    }
-  };
-
   const share = async (token: string) => {
     const url = inviteUrl(config.webUrl, token);
     await Share.share({ message: t('household.inviteMessage', { household: householdName, url }) });
   };
-
-  const invite = () => run('invite', async () => {
-    const res = await createInvite(householdId!);
-    await share(res.token);
-  });
 
   const confirm = (title: string, body: string, action: string, onYes: () => void, destructive = true) =>
     Alert.alert(title, body, [
@@ -140,7 +119,7 @@ export function HouseholdScreen() {
         </View>
 
         {notice ? <Text accessibilityRole="alert" muted>{notice}</Text> : null}
-        {error ? <Text accessibilityRole="alert" style={{ color: th.accent }}>{t(`error.${error}`)}</Text> : null}
+        {error ? <Text accessibilityRole="alert" style={{ color: th.accent }}>{t(`app.error.${error}`)}</Text> : null}
 
         {isOwner ? (
           <View style={{ gap: 10 }}>
@@ -155,7 +134,7 @@ export function HouseholdScreen() {
 
         <Section title={t('household.members')}>
           {members.map((m) => (
-            <View key={m.id} style={{ backgroundColor: th.bg, borderRadius: radius.md, padding: 14, gap: 10 }}>
+            <Card key={m.id}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                 <Ionicons name={m.user_id === household?.owner_id ? 'star' : 'person-outline'} size={20} color={th.text} />
                 <View style={{ flex: 1 }}>
@@ -175,7 +154,7 @@ export function HouseholdScreen() {
                   <SmallButton label={t('household.remove')} disabled={!!busy} onPress={() => remove(m)} />
                 </View>
               ) : null}
-            </View>
+            </Card>
           ))}
         </Section>
 
@@ -184,19 +163,19 @@ export function HouseholdScreen() {
             {members.length >= MAX_MEMBERS ? <Text muted>{t('household.inviteFull')}</Text> : (
               <>
                 <Text muted>{t('household.inviteHint')}</Text>
-                <Button label={busy === 'invite' ? '…' : t('household.invite')} disabled={!!busy} onPress={() => void invite()} />
+                <Button label={t('household.invite')} disabled={!!busy} onPress={() => router.push('/invite')} />
               </>
             )}
             {invites.length ? <Text style={{ fontWeight: '800', marginTop: 8 }}>{t('household.openInvites')}</Text> : null}
             {invites.map((i: InviteRow) => (
-              <View key={i.id} style={{ backgroundColor: th.bg, borderRadius: radius.md, padding: 14, gap: 10 }}>
+              <Card key={i.id}>
                 <Text>{t('household.inviteExpires', { date: fmtDate(i.expires_at) })}</Text>
                 <View style={{ flexDirection: 'row', gap: 10 }}>
                   <SmallButton label={t('household.share')} disabled={!!busy} onPress={() => void share(i.token)} />
                   <SmallButton label={t('household.inviteOff')} disabled={!!busy}
                     onPress={() => void run(`revoke:${i.id}`, () => revokeInvite(i.id))} />
                 </View>
-              </View>
+              </Card>
             ))}
           </Section>
         ) : owner ? (
@@ -218,18 +197,5 @@ function Section({ title, children }: { title: string; children: React.ReactNode
       <Text accessibilityRole="header" style={{ fontSize: 18, fontWeight: '800' }}>{title}</Text>
       {children}
     </View>
-  );
-}
-
-function SmallButton({ label, onPress, disabled }: { label: string; onPress: () => void; disabled?: boolean }) {
-  const th = useTheme();
-  return (
-    <Pressable accessibilityRole="button" disabled={disabled} onPress={onPress}
-      style={({ pressed }) => ({
-        minHeight: minTouch, paddingHorizontal: 14, borderRadius: radius.md, justifyContent: 'center',
-        borderWidth: 2, borderColor: th.border, opacity: disabled ? 0.5 : pressed ? 0.7 : 1,
-      })}>
-      <Text style={{ fontWeight: '700', fontSize: 15 }}>{label}</Text>
-    </Pressable>
   );
 }

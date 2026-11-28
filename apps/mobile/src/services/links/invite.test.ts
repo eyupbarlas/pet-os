@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { inviteUrl, isInviteToken, tokenFromUrl } from './inviteLink';
+import { inviteUrl, isInviteToken, tokenFromUrl } from './invite';
 
 const token = 'aB3_-xYz0123456789aB3_-xYz0123456789aB3_-xY';
 

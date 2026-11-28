@@ -1,5 +1,5 @@
-import { Screen, Text } from '../../src/ui/primitives';
-import { useT } from '../../src/i18n';
+import { Screen, Text } from '../../../src/ui/primitives';
+import { useT } from '../../../src/i18n';
 
 export default function PetTab() {
   const t = useT();

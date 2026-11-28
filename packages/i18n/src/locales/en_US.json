@@ -1,6 +1,24 @@
 {
   "app": {
-    "name": "HealthyPaw"
+    "name": "HealthyPaw",
+    "error": {
+      "invite_not_found": "This invite link doesn't work. Ask for a new one.",
+      "invite_revoked": "This invite link was turned off. Ask for a new one.",
+      "invite_used": "This invite link was already used. Ask for a new one.",
+      "invite_expired": "This invite link has expired. Ask for a new one.",
+      "household_full": "This household already has 6 people.",
+      "already_member": "You're already in this household.",
+      "confirm_leave_required": "Please confirm that you're leaving your current household.",
+      "not_owner": "Only the household owner can do that.",
+      "not_a_member": "You're no longer in this household.",
+      "member_not_found": "That person is no longer in the household.",
+      "cannot_remove_self": "You can't remove yourself. Use Leave household instead.",
+      "owner_must_be_member": "The new owner must be in the household.",
+      "owner_must_transfer": "Make someone else the owner first.",
+      "not_authenticated": "Please sign in again.",
+      "offline": "This needs a connection. Try again when you're online.",
+      "unknown": "Something went wrong. Please try again."
+    }
   },
   "common": {
     "continue": "Continue",
@@ -163,7 +181,9 @@
     "deleteBody": "This deletes {{pets}} and all their history for everyone ({{members}}). It can't be undone.",
     "deleteConfirm": "Delete for everyone",
     "ownerOnly": "Only the owner ({{name}}) can invite or remove people.",
-    "noPets": "no pets"
+    "noPets": "no pets",
+    "inviteShare": "Create link and share",
+    "inviteSheetBody": "We'll make a one-time link that works for 7 days. Anyone with it can join, so send it only to the person you mean."
   },
   "join": {
     "title": "Join a household",
@@ -184,22 +204,10 @@
     "alreadyMember": "You're already in this household.",
     "ok": "OK"
   },
-  "error": {
-    "invite_not_found": "This invite link doesn't work. Ask for a new one.",
-    "invite_revoked": "This invite link was turned off. Ask for a new one.",
-    "invite_used": "This invite link was already used. Ask for a new one.",
-    "invite_expired": "This invite link has expired. Ask for a new one.",
-    "household_full": "This household already has 6 people.",
-    "already_member": "You're already in this household.",
-    "confirm_leave_required": "Please confirm that you're leaving your current household.",
-    "not_owner": "Only the household owner can do that.",
-    "not_a_member": "You're no longer in this household.",
-    "member_not_found": "That person is no longer in the household.",
-    "cannot_remove_self": "You can't remove yourself. Use Leave household instead.",
-    "owner_must_be_member": "The new owner must be in the household.",
-    "owner_must_transfer": "Make someone else the owner first.",
-    "not_authenticated": "Please sign in again.",
-    "offline": "This needs a connection. Try again when you're online.",
-    "unknown": "Something went wrong. Please try again."
+  "noHousehold": {
+    "title": "You're not in a household",
+    "body": "You left, were removed, or the household was deleted. You can start a new one, or open an invite link you were sent.",
+    "create": "Create a household",
+    "joinHint": "To join one, open the invite link you were sent."
   }
 }

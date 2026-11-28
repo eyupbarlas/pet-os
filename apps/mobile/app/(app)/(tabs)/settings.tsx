@@ -1,11 +1,11 @@
 import { Pressable, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Button, Screen, Text } from '../../src/ui/primitives';
-import { useT } from '../../src/i18n';
-import { useAuth } from '../../src/data/auth/AuthProvider';
-import { signOut } from '../../src/data/auth/signIn';
-import { useTheme } from '../../src/ui/theme';
+import { Button, Screen, Text } from '../../../src/ui/primitives';
+import { useT } from '../../../src/i18n';
+import { useAuth } from '../../../src/data/auth/AuthProvider';
+import { signOut } from '../../../src/data/auth/signIn';
+import { useTheme } from '../../../src/ui/theme';
 
 // Settings proper is a later slice; sign-out moved here from the old Today placeholder.
 export default function SettingsTab() {

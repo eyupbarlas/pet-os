@@ -2,7 +2,7 @@
 // (mobile.md 4.2: it must survive the sign-in app switch and a restart).
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
-import { isInviteToken } from './inviteLink';
+import { isInviteToken } from '../../services/links/invite';
 
 const KEY = 'pendingInviteToken';
 
