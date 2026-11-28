@@ -11,6 +11,7 @@ export default {
     deleteAccount: '/en/delete-account',
   },
   ui: {
+    menu: 'Menu',
     skip: 'Skip to content',
     nav: { features: 'Features', how: 'How it works', faq: 'FAQ', contact: 'Contact' },
     getApp: 'Get the app',

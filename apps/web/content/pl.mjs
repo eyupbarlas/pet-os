@@ -11,6 +11,7 @@ export default {
     deleteAccount: '/pl/usun-konto',
   },
   ui: {
+    menu: 'Menu',
     skip: 'Przejdź do treści',
     nav: { features: 'Funkcje', how: 'Jak to działa', faq: 'Pytania', contact: 'Kontakt' },
     getApp: 'Pobierz aplikację',

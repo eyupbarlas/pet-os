@@ -60,7 +60,7 @@ function header(t, page) {
   return `<a class="skip" href="#main">${esc(t.ui.skip)}</a>
 <header class="site-header"><div class="wrap bar">
   ${logo(t)}
-  <nav class="nav" aria-label="Main">
+  <nav class="nav" aria-label="${esc(t.ui.menu)}">
     <a href="${h}#features">${esc(n.features)}</a>
     <a href="${h}#how">${esc(n.how)}</a>
     <a href="${h}#faq">${esc(n.faq)}</a>
@@ -69,6 +69,16 @@ function header(t, page) {
   <div class="bar-end">
     <a class="lang" href="${o.paths[page]}" hreflang="${o.lang}" lang="${o.lang}" title="${esc(t.ui.switchLabel)}">${esc(o.lang.toUpperCase())}</a>
     <a class="btn btn-sm" href="${h}#download">${esc(t.ui.getApp)}</a>
+    <details class="menu">
+      <summary aria-label="${esc(t.ui.menu)}"><span class="burger" aria-hidden="true"></span></summary>
+      <nav class="menu-panel" aria-label="${esc(t.ui.menu)}">
+        <a href="${h}#features">${esc(n.features)}</a>
+        <a href="${h}#how">${esc(n.how)}</a>
+        <a href="${h}#faq">${esc(n.faq)}</a>
+        <a href="${t.paths.contact}">${esc(n.contact)}</a>
+        <a class="btn" href="${h}#download">${esc(t.ui.getApp)}</a>
+      </nav>
+    </details>
   </div>
 </div></header>`;
 }
