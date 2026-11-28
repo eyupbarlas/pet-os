@@ -1,4 +1,4 @@
-# Xcode Cloud: build and upload to TestFlight on every push to main
+# Xcode Cloud: build and upload to TestFlight when you push a tag
 
 The repo has `ci_scripts/ci_post_clone.sh`. It installs Node, pnpm and CocoaPods, then runs
 `expo prebuild` to create `apps/mobile/ios` (which is not committed). The steps below are the
@@ -13,7 +13,8 @@ missing.
    GitHub repo `eyupbarlas/pet-os`; accept.
 4. In the workflow editor:
    - **Environment**: Xcode version **Latest Release** (must be 26+), macOS Latest Release.
-   - **Start Conditions**: Branch Changes, branch `main`. Leave "auto-cancel builds" on.
+   - **Start Conditions**: remove the default Branch Changes condition, add **Tag Changes**, tag name
+     starts with `build-`. Only a tag you push starts a build.
    - **Actions**: **Archive – iOS**, scheme `HealthyPaw`, distribution **App Store Connect**.
    - **Post-Actions**: **TestFlight Internal Testing**, pick your internal group.
 5. **Environment Variables** (same editor, mark none as secret; they are public app settings
@@ -32,5 +33,12 @@ missing.
   should take roughly 15 to 25 minutes.
 - If the log says `ci_post_clone.sh` was not found, the script must sit in a `ci_scripts` folder
   next to the project Xcode Cloud opens or at the repo root; tell us what the log says.
-- Every push to `main` makes a TestFlight build, including doc-only merges. Narrow the start
-  condition with **Files and Folders** (`apps/mobile`, `packages`, `assets`) if that gets noisy.
+## Making a build
+Tag the commit on `main` that you want and push the tag:
+```bash
+git checkout main && git pull
+git tag build-2026-11-28-a && git push origin build-2026-11-28-a
+```
+Or on GitHub: Releases → Draft a new release → create the tag `build-…` on `main` → publish.
+Any tag starting with `build-` builds; use a new name each time. To build every push to `main`
+instead, switch the start condition back to Branch Changes.
