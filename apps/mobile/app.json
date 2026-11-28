@@ -20,11 +20,7 @@
       "supportsTablet": false,
       "usesAppleSignIn": true,
       "associatedDomains": ["applinks:healthypaw.app"],
-      "icon": {
-        "light": "../../assets/brand/png/ios/icon-1024.png",
-        "dark": "../../assets/brand/png/ios/icon-dark-1024.png",
-        "tinted": "../../assets/brand/png/ios/icon-tinted-1024.png"
-      }
+      "icon": "../../assets/brand/ios/AppIcon.icon"
     },
     "android": {
       "package": "app.healthypaw",
