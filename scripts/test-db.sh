@@ -14,3 +14,4 @@ for f in migrations/*.sql; do
 done
 psql -v ON_ERROR_STOP=1 -q -d "$DB" -f tests/rls_checks.sql && echo "rls checks ok"
 psql -v ON_ERROR_STOP=1 -q -d "$DB" -f tests/lifecycle.sql
+psql -v ON_ERROR_STOP=1 -q -d "$DB" -f tests/household.sql

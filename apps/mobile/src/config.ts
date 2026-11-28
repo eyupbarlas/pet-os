@@ -11,6 +11,8 @@ export const config = {
   powersyncUrl: process.env.EXPO_PUBLIC_POWERSYNC_URL ?? '',
   googleIosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID ?? '',
   googleWebClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ?? '',
+  /** Base of invite links (and later care cards); served by apps/web. */
+  webUrl: process.env.EXPO_PUBLIC_WEB_URL || 'https://healthypaw.app',
   isConfigured: Boolean(process.env.EXPO_PUBLIC_SUPABASE_URL && process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY),
 };
 void env;

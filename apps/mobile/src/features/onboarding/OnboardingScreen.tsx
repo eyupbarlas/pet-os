@@ -9,20 +9,17 @@ import { getCalendars } from 'expo-localization';
 import { ROUTINE_DEFAULTS, isStreakCritical, type Species } from '@petos/domain';
 import { minTouch, radius } from '@petos/tokens';
 import { useAuth } from '../../data/auth/AuthProvider';
+import { suggestedName } from '../../data/auth/suggestedName';
 import { createHousehold } from '../../data/mutations';
 import { useMembership } from '../../data/queries';
 import { useT } from '../../i18n';
 import { Button, Chip, Field, Screen, Text } from '../../ui/primitives';
 import { useTheme } from '../../ui/theme';
-import { useHouseholdToday } from '../today/useHouseholdToday';
-import { kindIcon } from '../today/kindIcon';
+import { useHouseholdToday } from '../../data/queries/useHouseholdToday';
+import { kindIcon } from '../../ui/kindIcon';
 
 const deviceZone = () => getCalendars()[0]?.timeZone ?? 'Europe/Warsaw';
 
-function suggestedName(meta: Record<string, unknown> | undefined) {
-  const v = meta?.given_name ?? meta?.first_name ?? meta?.full_name ?? meta?.name ?? meta?.display_name;
-  return typeof v === 'string' ? v.split(' ')[0]!.slice(0, 60) : '';
-}
 
 export function OnboardingScreen() {
   const t = useT();
@@ -47,7 +44,7 @@ export function OnboardingScreen() {
 
   if (!session) return <Redirect href="/" />;
   // Already in a household (second phone, or just created): straight to Today.
-  if (membership) return <Redirect href="/(tabs)/today" />;
+  if (membership) return <Redirect href="/today" />;
 
   const name = displayName.trim();
   const pet = petName.trim();

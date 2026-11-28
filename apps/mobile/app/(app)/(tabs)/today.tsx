@@ -1,6 +1,6 @@
-import { useAuth } from '../../src/data/auth/AuthProvider';
-import { useMembership } from '../../src/data/queries';
-import { TodayScreen } from '../../src/features/today/TodayScreen';
+import { useAuth } from '../../../src/data/auth/AuthProvider';
+import { useMembership } from '../../../src/data/queries';
+import { TodayScreen } from '../../../src/features/today/TodayScreen';
 
 export default function TodayTab() {
   const { session } = useAuth();

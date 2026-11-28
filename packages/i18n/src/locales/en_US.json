@@ -1,6 +1,24 @@
 {
   "app": {
-    "name": "HealthyPaw"
+    "name": "HealthyPaw",
+    "error": {
+      "invite_not_found": "This invite link doesn't work. Ask for a new one.",
+      "invite_revoked": "This invite link was turned off. Ask for a new one.",
+      "invite_used": "This invite link was already used. Ask for a new one.",
+      "invite_expired": "This invite link has expired. Ask for a new one.",
+      "household_full": "This household already has 6 people.",
+      "already_member": "You're already in this household.",
+      "confirm_leave_required": "Please confirm that you're leaving your current household.",
+      "not_owner": "Only the household owner can do that.",
+      "not_a_member": "You're no longer in this household.",
+      "member_not_found": "That person is no longer in the household.",
+      "cannot_remove_self": "You can't remove yourself. Use Leave household instead.",
+      "owner_must_be_member": "The new owner must be in the household.",
+      "owner_must_transfer": "Make someone else the owner first.",
+      "not_authenticated": "Please sign in again.",
+      "offline": "This needs a connection. Try again when you're online.",
+      "unknown": "Something went wrong. Please try again."
+    }
   },
   "common": {
     "continue": "Continue",
@@ -54,7 +72,10 @@
     "progress_few": "{{done}} of {{count}} done for the streak",
     "progress_many": "{{done}} of {{count}} done for the streak",
     "streakLeft_few": "{{count}} more to keep the streak",
-    "streakLeft_many": "{{count}} more to keep the streak"
+    "streakLeft_many": "{{count}} more to keep the streak",
+    "inviteTitle": "Share the care",
+    "inviteBody": "Invite your partner so you both see what's done and who did it.",
+    "inviteCta": "Invite someone"
   },
   "task": {
     "dog": {
@@ -122,6 +143,71 @@
     "saveFailed": "Couldn't save. Please try again."
   },
   "settings": {
-    "signedInAs": "Signed in as {{email}}"
+    "signedInAs": "Signed in as {{email}}",
+    "household": "Household",
+    "householdHint": "Members, invites and who's the owner"
+  },
+  "household": {
+    "title": "Household",
+    "name": "Household name",
+    "rename": "Save name",
+    "renamed": "Name saved",
+    "members": "Members",
+    "you": "You",
+    "owner": "Owner",
+    "joined": "Joined {{date}}",
+    "makeOwner": "Make owner",
+    "remove": "Remove",
+    "makeOwnerTitle": "Make {{name}} the owner?",
+    "makeOwnerBody": "{{name}} will be able to invite and remove people. You'll be a member.",
+    "removeTitle": "Remove {{name}}?",
+    "removeBody": "{{name}} won't see this household any more. The pets and their history stay here.",
+    "removed": "{{name}} was removed. Open invite links were turned off.",
+    "invite": "Invite someone",
+    "inviteHint": "Send a link. It works once and for 7 days.",
+    "inviteFull": "This household is full (6 people).",
+    "inviteMessage": "Join me on HealthyPaw so we can look after {{household}} together: {{url}}",
+    "openInvites": "Open invite links",
+    "inviteExpires": "Link · works until {{date}}",
+    "inviteOff": "Turn off",
+    "share": "Share again",
+    "leave": "Leave household",
+    "leaveTitle": "Leave {{name}}?",
+    "leaveBody": "The pets stay with the household. You can join again with a new link.",
+    "leaveOwnerBody": "The pets stay with the household. {{next}} becomes the owner.",
+    "leaveLastBody": "You're the only one here, so the household and its pets will be deleted.",
+    "delete": "Delete household",
+    "deleteTitle": "Delete {{name}}?",
+    "deleteBody": "This deletes {{pets}} and all their history for everyone ({{members}}). It can't be undone.",
+    "deleteConfirm": "Delete for everyone",
+    "ownerOnly": "Only the owner ({{name}}) can invite or remove people.",
+    "noPets": "no pets",
+    "inviteShare": "Create link and share",
+    "inviteSheetBody": "We'll make a one-time link that works for 7 days. Anyone with it can join, so send it only to the person you mean."
+  },
+  "join": {
+    "title": "Join a household",
+    "invitedBy": "{{name}} invited you to {{household}}",
+    "invited": "You're invited to {{household}}",
+    "members": "People: {{names}}",
+    "pets": "Pets: {{names}}",
+    "yourName": "Your name",
+    "yourNameHint": "This is how the household sees who ticked what.",
+    "petsComeAlong": "You'll move from {{current}} and bring {{pets}} with you.",
+    "leaveOld": "You'll leave {{current}}. Its pets stay there with {{others}}.",
+    "newOwner": "{{name}} will become the owner of {{current}}.",
+    "join": "Join {{household}}",
+    "joining": "Joining…",
+    "notNow": "Not now",
+    "signInFirst": "You've been invited to a household. Sign in to join it.",
+    "full": "This household already has 6 people, the most it can have.",
+    "alreadyMember": "You're already in this household.",
+    "ok": "OK"
+  },
+  "noHousehold": {
+    "title": "You're not in a household",
+    "body": "You left, were removed, or the household was deleted. You can start a new one, or open an invite link you were sent.",
+    "create": "Create a household",
+    "joinHint": "To join one, open the invite link you were sent."
   }
 }

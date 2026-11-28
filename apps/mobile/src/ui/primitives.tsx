@@ -56,3 +56,21 @@ export function Chip({ label, selected, onPress }: { label: string; selected: bo
     </Pressable>
   );
 }
+/** Rounded surface for grouped content (list rows, previews, nudges). */
+export function Card({ style, ...p }: ViewProps) {
+  const t = useTheme();
+  return <View {...p} style={[{ backgroundColor: t.bg, borderRadius: radius.md, padding: 14, gap: 10 }, style]} />;
+}
+/** Compact outlined action for rows (remove, share again). */
+export function SmallButton({ label, onPress, disabled }: { label: string; onPress: () => void; disabled?: boolean }) {
+  const t = useTheme();
+  return (
+    <Pressable accessibilityRole="button" accessibilityState={{ disabled: !!disabled }} disabled={disabled} onPress={onPress}
+      style={({ pressed }) => ({
+        minHeight: minTouch, paddingHorizontal: 14, borderRadius: radius.md, justifyContent: 'center',
+        borderWidth: 2, borderColor: t.border, opacity: disabled ? 0.5 : pressed ? 0.7 : 1,
+      })}>
+      <RNText style={{ color: t.text, fontWeight: '700', fontSize: 15 }}>{label}</RNText>
+    </Pressable>
+  );
+}

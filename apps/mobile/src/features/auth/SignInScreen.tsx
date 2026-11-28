@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Platform, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Button, Screen, Text } from '../src/ui/primitives';
-import { useT } from '../src/i18n';
-import { useTheme } from '../src/ui/theme';
-import { requestEmailCode, signInWithApple, signInWithGoogle, verifyEmailCode } from '../src/data/auth/signIn';
+import { Button, Screen, Text } from '../../ui/primitives';
+import { useT } from '../../i18n';
+import { useTheme } from '../../ui/theme';
+import { requestEmailCode, signInWithApple, signInWithGoogle, verifyEmailCode } from '../../data/auth/signIn';
 
-export default function SignIn() {
+export function SignInScreen({ invited }: { invited?: boolean }) {
   const t = useT();
   const th = useTheme();
   const router = useRouter();
@@ -30,6 +30,7 @@ export default function SignIn() {
   return (
     <Screen bottomInset style={{ gap: 12, justifyContent: 'center' }}>
       <Text accessibilityRole="header" style={{ fontSize: 24, fontWeight: '700' }}>{t('auth.title')}</Text>
+      {invited ? <Text muted>{t('join.signInFirst')}</Text> : null}
       <TextInput value={email} onChangeText={setEmail} placeholder={t('auth.email')} placeholderTextColor={th.textMuted}
         keyboardType="email-address" autoCapitalize="none" autoComplete="email" style={input} accessibilityLabel={t('auth.email')} />
       {!sent ? (

@@ -100,3 +100,39 @@ function safeLocalDate(iso: string, tz: string) {
   if (Number.isNaN(ms)) return null;
   try { return localDate(ms, tz); } catch { return null; }
 }
+
+export interface HouseholdRow { id: string; name: string | null; owner_id: string | null }
+
+export function useHousehold(householdId: string | undefined) {
+  const { data } = useQuery<HouseholdRow>('select id, name, owner_id from household where id = ?', [householdId ?? '']);
+  return data[0] ?? null;
+}
+
+export interface MemberRow { id: string; user_id: string; display_name: string | null; joined_at: string | null }
+
+/** Active members, longest-standing first (the order ownership passes in). */
+export function useMembers(householdId: string | undefined) {
+  const { data } = useQuery<MemberRow>(
+    `select id, user_id, display_name, joined_at from household_member
+      where household_id = ? and left_at is null order by joined_at, id`,
+    [householdId ?? ''],
+  );
+  return data;
+}
+
+export interface InviteRow { id: string; token: string; expires_at: string | null; created_at: string | null }
+
+/** Open invites. They sync to the owner only; expired ones are filtered here. */
+export function useOpenInvites(householdId: string | undefined) {
+  const { data } = useQuery<InviteRow>(
+    'select id, token, expires_at, created_at from invite where household_id = ? order by created_at desc',
+    [householdId ?? ''],
+  );
+  return useMemo(() => data.filter((i) => !i.expires_at || parseTimestamp(i.expires_at) > Date.now()), [data]);
+}
+
+/** The signed-in user's saved display name, if the profile has synced. */
+export function useMyDisplayName(userId: string | undefined) {
+  const { data } = useQuery<{ display_name: string | null }>('select display_name from profiles where id = ?', [userId ?? '']);
+  return data[0]?.display_name ?? null;
+}
