@@ -1,0 +1,8 @@
+{
+  "name": "HealthyPaw",
+  "short_name": "HealthyPaw",
+  "icons": [{ "src": "/img/icon-512.png", "sizes": "512x512", "type": "image/png" }],
+  "theme_color": "#FF8A4C",
+  "background_color": "#FFFFFF",
+  "display": "browser"
+}

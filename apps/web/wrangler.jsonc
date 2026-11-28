@@ -1,0 +1,15 @@
+{
+  // Marketing site for healthypaw.app. The care card (/c/*) and invite pages (/i/*) join this Worker in slice 8 (ADR 0024).
+  // NOTE: if the existing "hello world" Worker for healthypaw.app has a different name, set "name" to match it
+  // so `wrangler deploy` replaces it instead of creating a second one.
+  "name": "healthypaw-web",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-11-01",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  },
+  "observability": { "enabled": false }
+}
