@@ -3,16 +3,17 @@
 // another phone's ticks appear as soon as they sync.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AccessibilityInfo, Alert, Animated, Image, Pressable, ScrollView, View } from 'react-native';
+import { useRouter } from 'expo-router';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useStatus } from '@powersync/react';
 import { isDue, streakView } from '@petos/domain';
 import { minTouch, radius, spacing } from '@petos/tokens';
 import { useAuth } from '../../data/auth/AuthProvider';
 import { tickTask, untickTask } from '../../data/mutations';
-import { usePetDay, usePets, type Membership, type TodayTask } from '../../data/queries';
+import { useMembers, usePetDay, usePets, type Membership, type TodayTask } from '../../data/queries';
 import { parseTimestamp } from '../../data/queries/time';
 import { deviceLocale, useT } from '../../i18n';
-import { Screen, Text } from '../../ui/primitives';
+import { Button, Screen, Text } from '../../ui/primitives';
 import { useTheme } from '../../ui/theme';
 import { useCurrentPet, useCurrentPetStore } from '../pets/currentPet';
 import { kindIcon } from './kindIcon';
@@ -45,6 +46,8 @@ export function TodayScreen({ membership }: { membership: Membership }) {
   const { session } = useAuth();
   const me = session?.user.id ?? '';
   const status = useStatus();
+  const router = useRouter();
+  const members = useMembers(membership.household_id);
   const reduceMotion = useReduceMotion();
   const tz = membership.timezone;
   const today = useHouseholdToday(tz);
@@ -185,6 +188,13 @@ export function TodayScreen({ membership }: { membership: Membership }) {
               </View>
             ) : null}
           </>
+        ) : null}
+        {members.length === 1 ? (
+          <View style={{ backgroundColor: th.bg, borderRadius: radius.lg, padding: 18, gap: 10 }}>
+            <Text style={{ fontWeight: '800', fontSize: 17 }}>{t('today.inviteTitle')}</Text>
+            <Text muted>{t('today.inviteBody')}</Text>
+            <Button secondary label={t('today.inviteCta')} onPress={() => router.push('/household')} />
+          </View>
         ) : null}
       </ScrollView>
     </Screen>

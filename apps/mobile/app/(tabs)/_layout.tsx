@@ -5,6 +5,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useStatus } from '@powersync/react';
 import { useAuth } from '../../src/data/auth/AuthProvider';
 import { useMembership } from '../../src/data/queries';
+import { usePendingInvite } from '../../src/features/household/pendingInvite';
 import { useT } from '../../src/i18n';
 import { Screen, Text } from '../../src/ui/primitives';
 import { useTheme } from '../../src/ui/theme';
@@ -23,10 +24,13 @@ export default function TabsLayout() {
   const { session, loading } = useAuth();
   const status = useStatus();
   const { membership, isLoading } = useMembership(session?.user.id);
+  const { token: pendingInvite, loaded: inviteLoaded } = usePendingInvite();
 
   if (!loading && !session) return <Redirect href="/" />;
   if (!membership) {
-    if (!loading && !isLoading && status.hasSynced) return <Redirect href="/onboarding" />;
+    // Invited: join that household instead of creating a new one.
+    if (inviteLoaded && pendingInvite) return <Redirect href="/join" />;
+    if (!loading && !isLoading && inviteLoaded && status.hasSynced) return <Redirect href="/onboarding" />;
     return (
       <Screen style={{ justifyContent: 'center', alignItems: 'center' }}>
         <Text muted>{t('common.loading')}</Text>

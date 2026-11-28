@@ -85,3 +85,11 @@ export async function untickTask(tickRowId: string) {
     await tx.execute('delete from tick where id = ?', [tickRowId]);
   });
 }
+
+/** Owner only (RLS). A member's queued rename is discarded by the server (42501). */
+export async function renameHousehold(householdId: string, name: string) {
+  await powerSync.writeTransaction(async (tx) => {
+    // Only `name` is granted for update (not updated_at), so patch that column alone.
+    await tx.execute('update household set name = ? where id = ?', [name, householdId]);
+  });
+}

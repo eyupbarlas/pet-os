@@ -3,12 +3,15 @@ import { Redirect, useRouter } from 'expo-router';
 import { Button, Screen, Text } from '../src/ui/primitives';
 import { useT } from '../src/i18n';
 import { useAuth } from '../src/data/auth/AuthProvider';
+import { usePendingInvite } from '../src/features/household/pendingInvite';
 
 export default function Welcome() {
   const t = useT();
   const router = useRouter();
   const { session, loading } = useAuth();
-  if (!loading && session) return <Redirect href="/(tabs)/today" />;
+  const { token: pendingInvite, loaded } = usePendingInvite();
+  // A tapped invite link wins over everything else once signed in (it survives the sign-in trip).
+  if (!loading && session && loaded) return <Redirect href={pendingInvite ? '/join' : '/(tabs)/today'} />;
   return (
     <Screen bottomInset style={{ justifyContent: 'center', gap: 16 }}>
       <Image source={require('../assets/lockup.png')} resizeMode="contain" style={{ height: 120, width: '100%' }} accessibilityLabel={t('app.name')} />

@@ -9,6 +9,7 @@ import { getCalendars } from 'expo-localization';
 import { ROUTINE_DEFAULTS, isStreakCritical, type Species } from '@petos/domain';
 import { minTouch, radius } from '@petos/tokens';
 import { useAuth } from '../../data/auth/AuthProvider';
+import { suggestedName } from '../../data/auth/suggestedName';
 import { createHousehold } from '../../data/mutations';
 import { useMembership } from '../../data/queries';
 import { useT } from '../../i18n';
@@ -19,10 +20,6 @@ import { kindIcon } from '../today/kindIcon';
 
 const deviceZone = () => getCalendars()[0]?.timeZone ?? 'Europe/Warsaw';
 
-function suggestedName(meta: Record<string, unknown> | undefined) {
-  const v = meta?.given_name ?? meta?.first_name ?? meta?.full_name ?? meta?.name ?? meta?.display_name;
-  return typeof v === 'string' ? v.split(' ')[0]!.slice(0, 60) : '';
-}
 
 export function OnboardingScreen() {
   const t = useT();
