@@ -10,7 +10,7 @@ export const site = {
 
   // Apple Team ID (10 characters, developer.apple.com > Membership). Needed for invite links to open the app:
   // build writes /.well-known/apple-app-site-association for app.healthypaw only when this is set.
-  appleTeamId: null, // TODO(Eyup)
+  appleTeamId: 'AWK24SQ9QZ',
   iosBundleId: 'app.healthypaw',
 
   // Inboxes (Cloudflare Email Routing forwards them, see docs/architecture/mvp/platform-services.md §9).
@@ -19,9 +19,9 @@ export const site = {
 
   // Who runs HealthyPaw, for the privacy notice and terms (GDPR Art. 13 "identity of the controller").
   // TODO(Eyup): legal name, e.g. a company "HealthyPaw sp. z o.o." or a person's name.
-  operatorName: null,
+  operatorName: 'Eyup Barlas',
   // TODO(Eyup): postal address for legal notices (street, postcode, city, country).
-  operatorAddress: null,
+  operatorAddress: 'Marcina Kasprzaka 29C/381, 01-234 Warszawa, Polska',
 
   // Shown on the privacy notice and terms.
   legalUpdated: { en: '28 November 2026', pl: '28 listopada 2026' },
