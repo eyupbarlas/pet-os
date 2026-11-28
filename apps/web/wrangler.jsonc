@@ -4,6 +4,13 @@
   "name": "young-cell-8196",
   "main": "src/index.ts",
   "compatibility_date": "2025-11-01",
+  // Serve on the real domain only. Custom domains create the DNS records in the healthypaw.app zone for you.
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [
+    { "pattern": "healthypaw.app", "custom_domain": true },
+    { "pattern": "www.healthypaw.app", "custom_domain": true }
+  ],
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
