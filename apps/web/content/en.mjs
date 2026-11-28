@@ -112,6 +112,7 @@ export default {
     ],
 
     downloadTitle: 'Coming to iPhone and Android',
+    downloadTitleLive: 'Get HealthyPaw on your phone',
     downloadBody:
       'HealthyPaw is in a small, invite-only beta in Warsaw. Want to be one of the first households to try it? Write to us and we’ll send you an invite.',
     betaCta: 'Ask for a beta invite',

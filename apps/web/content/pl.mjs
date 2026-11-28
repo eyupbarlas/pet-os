@@ -112,6 +112,7 @@ export default {
     ],
 
     downloadTitle: 'Wkrótce na iPhone’a i Androida',
+    downloadTitleLive: 'Pobierz HealthyPaw na telefon',
     downloadBody:
       'HealthyPaw jest teraz w małej, zamkniętej becie w Warszawie. Chcesz być jednym z pierwszych domów, które go przetestują? Napisz do nas, a wyślemy Ci zaproszenie.',
     betaCta: 'Poproś o zaproszenie do bety',

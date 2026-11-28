@@ -67,6 +67,11 @@ p { margin: 0 0 1em; }
 .store .icon { width: 28px; height: 28px; }
 .store span { display: flex; flex-direction: column; line-height: 1.15; font: 700 1.2rem var(--display); }
 .store small { font: 600 .72rem var(--body); opacity: .85; }
+/* Official badges: never recolour, crop or restyle them. Clear space around each is a quarter of its height. */
+.badge { display: inline-block; line-height: 0; margin: 6px; border-radius: 8px; }
+.badge img { height: 50px; width: auto; }
+.badge:hover { transform: translateY(-2px); }
+.stores:has(.badge) { margin-left: -6px; }
 a.store:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
 .store.is-soon { background: transparent; color: var(--text); border: 2px dashed var(--muted); cursor: default; }
 .store.is-soon.on-dark { color: #fff; border-color: rgba(255, 255, 255, .55); }
